@@ -5,8 +5,8 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
     """Gradient descent algorithm (GD).
 
     Args:
-        y ( shape=(N, ) ): _description_
-        tx ( shape=(N,2) ): _description_
+        y ( shape=(N, ) ): 
+        tx ( shape=(N,2) ): 
         initial_w ( shape=(2, ) ): initial weight vector
         max_iters ( int ): number of steps to run
         gamma ( int ): step size
@@ -26,18 +26,24 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
         # update w by gradient
         w = w - gamma * g
 
-    return loss, w
+    return w, loss
 
 def least_squares(y, tx):
     """calculate the least squares."""
     a = tx.T.dot(tx)
     b = tx.T.dot(y)
-    return np.linalg.solve(a, b)
+    
+    w = np.linalg.solve(a, b)
+    loss = compute_loss(y, tx, w)
+    return w, loss
 
 def ridge_regression(y, tx, lambda_):
     """implement ridge regression."""
     aI = 2 * tx.shape[0] * lambda_ * np.identity(tx.shape[1])
     a = tx.T.dot(tx) + aI
     b = tx.T.dot(y)
-    return np.linalg.solve(a, b)
+    
+    w = np.linalg.solve(a, b)
+    loss = compute_loss(y, tx, w)
+    return w, loss
 
