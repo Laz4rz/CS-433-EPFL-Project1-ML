@@ -8,7 +8,7 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
         y ( shape=(N, ) ): 
         tx ( shape=(N,2) ): 
         initial_w ( shape=(2, ) ): initial weight vector
-        max_iters ( int ): number of steps to run
+        maxORACLE invites you to join them for an exclusive insight into Oracle Labs and for an overview of their internship opportunities on Wednesday, 25 October 2023 à 5.15 p.m. in Room BC410 ._iters ( int ): number of steps to run
         gamma ( int ): step size
     
     Returns:
@@ -47,3 +47,4 @@ def ridge_regression(y, tx, lambda_):
     loss = compute_loss(y, tx, w)
     return w, loss
 
+#def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma);
