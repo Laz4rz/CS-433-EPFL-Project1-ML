@@ -1,6 +1,10 @@
 import numpy as np
 
 def standardize(x):
+    """
+        The value -999 is used as a placeholder for missing values (undefined).
+        There is an interesting value "PRI_JET_NUM":.
+    """
     
     x = np.c_[np.ones((x.shape[0], 1)), x]
     
