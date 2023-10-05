@@ -1,5 +1,16 @@
 import numpy as np
 
+def standardize(x):
+    
+    x = np.c_[np.ones((x.shape[0], 1)), x]
+    
+    mean_x = np.mean(x)
+    x = x - mean_x
+    std_x = np.std(x)
+    x = x / std_x
+    
+    return x
+
 def compute_loss(y, tx, w, loss_type='mse'):
     """Calculate the loss using either MSE or MAE.
 
