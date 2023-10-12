@@ -110,7 +110,7 @@ def reg_logistic_regression(y, tx, lambda_):
     for n_iter in range(max_iters):
         gamma = 1/(n_iter+1)
         for y_b, tx_b in batch_iter(y, tx, batch_size=30, num_batches=1):
-            gradient = calculate_gradient_logistic(y, tx, w) + 2 * lambda_ * w
-            loss = calculate_loss_logistic(y, tx, w) + lambda_ * np.squeeze(w.T.dot(w))
-            w = w - gamma * gradient
+            gradient = calculate_gradient_logistic(y_b, tx_b, w) + 2 * lambda_ * w
+            loss = calculate_loss_logistic(y_b, tx_b, w) + lambda_ * np.squeeze(w.T.dot(w))
+            w -= gamma * gradient
     return w, loss
