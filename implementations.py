@@ -84,7 +84,7 @@ def ridge_regression(y, tx, lambda_):
         y: outpus/labels
         tx: standardized inputs/features augmented with the first column filled with 1's
         lambda_: penalty factor
-        
+
     Returns:
         loss: loss value of the last iteration
         w: model parameters as numpy arrays of the last iteration
@@ -98,15 +98,36 @@ def ridge_regression(y, tx, lambda_):
     return w, loss
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
+    """Logistic regression with loss minimized using gradient descent
+
+    Args:
+        y: outpus/labels
+        tx: standardized inputs/features augmented with the first column filled with 1's
+        lambda_: penalty factor
+        initial_w: initial weight vector
+        max_iters: number of iterations
+        gamma: step size
+
+    Returns:
+        w: minimized weight vector
+        loss: corresponding loss
+    """
     pass
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """Regularized logistic regression using SGD.
 
-        :param y: outpus/labels
-        :param tx: standardized inputs/features augmented with the first column filled with 1's
-        :param lambda_: penalty factor
-        :return: (w, loss) where w is the last weight vector and loss is the corresponding loss value
+    Args:
+        y: outpus/labels
+        tx: standardized inputs/features augmented with the first column filled with 1's
+        lambda_: penalty factor
+        initial_w: initial weight vector
+        max_iters: number of iterations
+        gamma: step size
+
+    Returns:
+        w: minimized weight vector
+        loss: corresponding loss
     """
     w = initial_w
     for _ in range(max_iters):
