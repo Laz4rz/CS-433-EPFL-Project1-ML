@@ -83,7 +83,7 @@ def sigmoid(t):
     #                 1 / (1 + np.exp(-t)), 
     #                 np.exp(t) / (1 + np.exp(t)))
 
-def calculate_loss_logistic(y, tx, w):
+def compute_loss_logistic(y, tx, w):
     """Compute the cost by negative log likelihood.
 
     Args:
@@ -98,8 +98,8 @@ def calculate_loss_logistic(y, tx, w):
     y = y.reshape((-1, 1))
     return np.sum(np.logaddexp(0, tx.dot(w))) - y.T.dot(tx.dot(w))
 
-def calculate_gradient_logistic(y, tx, w):
-    """Compute the gradient of loss.
+def compute_gradient_logistic(y, tx, w):
+    """Compute the gradient of loss for logistic regression.
 
     Args:
         y: outpus/labels
