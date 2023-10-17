@@ -97,7 +97,10 @@ def ridge_regression(y, tx, lambda_):
     loss = compute_loss(y, tx, w)
     return w, loss
 
-def reg_logistic_regression(y, tx, lambda_):
+def logistic_regression(y, tx, initial_w, max_iters, gamma):
+    pass
+
+def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """Regularized logistic regression using SGD.
 
         :param y: outpus/labels
@@ -105,10 +108,9 @@ def reg_logistic_regression(y, tx, lambda_):
         :param lambda_: penalty factor
         :return: (w, loss) where w is the last weight vector and loss is the corresponding loss value
     """
-    max_iters = 500
-    w = np.ones(tx.shape[1])
-    for n_iter in range(max_iters):
-        gamma = 1/(n_iter+1)
+    w = initial_w
+    for _ in range(max_iters):
+        # gamma = 1/(n_iter+1) not sure? Gamma is passed as constant in the project description
         for y_b, tx_b in batch_iter(y, tx, batch_size=30, num_batches=1):
             gradient = calculate_gradient_logistic(y_b, tx_b, w) + 2 * lambda_ * w
             loss = calculate_loss_logistic(y_b, tx_b, w) + lambda_ * np.squeeze(w.T.dot(w))
