@@ -77,6 +77,10 @@ def sigmoid(t):
     """
     
     return 1.0 / (1 + np.exp(-t))
+    
+    # return np.where(t >= 0, 
+    #                 1 / (1 + np.exp(-t)), 
+    #                 np.exp(t) / (1 + np.exp(t)))
 
 def calculate_loss_logistic(y, tx, w):
     """Compute the cost by negative log likelihood.
@@ -89,6 +93,7 @@ def calculate_loss_logistic(y, tx, w):
     Returns:
         logistic loss
     """
+    
     y = y.reshape((-1, 1))
     return np.sum(np.logaddexp(0, tx.dot(w))) - y.T.dot(tx.dot(w))
 
@@ -103,6 +108,7 @@ def calculate_gradient_logistic(y, tx, w):
     Returns:
         :return: logistic gradient
     """
+    
     return tx.T.dot(sigmoid(tx.dot(w))-y)
 
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
