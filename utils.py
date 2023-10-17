@@ -15,9 +15,6 @@ def standardize(x):
     
     return x
 
-def theta(x: np.ndarray) -> np.ndarray:
-    return 1 / (1+np.exp(-x))   
-
 def compute_loss(y, tx, w, loss_type='mse'):
     """Calculate the loss using either MSE, MAE or logistic regression cost function.
 
@@ -39,15 +36,19 @@ def compute_loss(y, tx, w, loss_type='mse'):
     # MAE loss
     elif loss_type == 'mae':
         loss = 1/(2*len(y)) * np.sum(np.abs(e))
-
-    # Logistic regression cost
-    elif loss_type == "lr_cost":
-        loss = 1/len(y) * ((y.T @ np.log(theta(tx @ w))) + (1 - y).T @ np.log(theta(tx @ w)))
     
     else:
-        raise ValueError("loss_type must be either 'mse', 'mae' or 'lr_cost'")
+        raise ValueError("loss_type must be either 'mse' or 'mae'")
     
     return loss
+
+def compute_logistic_regression_loss(y, tx, w): 
+    """
+    """
+    def theta(x: np.ndarray) -> np.ndarray:
+        return 1 / (1+np.exp(-x))
+      
+    return 1/len(y) * ((y.T @ np.log(theta(tx @ w))) + (1 - y).T @ np.log(theta(tx @ w)))
 
 def compute_gradient(y, tx, w):
     """Computes the gradient at w.
