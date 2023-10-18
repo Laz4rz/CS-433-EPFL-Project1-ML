@@ -112,7 +112,12 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         w: minimized weight vector
         loss: corresponding loss
     """
-    pass
+    w = initial_w
+    for _ in range(max_iters):
+        gradient = compute_gradient_logistic(y, tx, w)
+        loss = compute_loss_logistic
+        w -= gamma * gradient
+    return w, loss
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """Regularized logistic regression using SGD.
