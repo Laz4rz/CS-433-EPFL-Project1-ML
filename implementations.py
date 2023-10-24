@@ -110,13 +110,11 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         loss: corresponding loss
     """
     w = initial_w
-    losses = []
     for _ in range(max_iters):
         gradient = compute_gradient_logistic(y, tx, w)
         loss = compute_loss_logistic(y, tx, w)
-        losses.append(loss)
         w = w - gamma * gradient
-    return w, losses
+    return w, loss
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """Regularized logistic regression using SGD.
