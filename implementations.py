@@ -20,9 +20,7 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
     w = initial_w
     batch_size = 1
     n_batches = tx.shape[0] // batch_size
-
-    if max_iters == 0:
-        return compute_loss(y, tx, w)
+    loss = compute_loss(y, tx, w)
 
     for _ in range(max_iters):
         grad = 0
@@ -50,17 +48,14 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
         w: model parameters as numpy arrays of shape of the last iteration of GD
     """
     w = initial_w
+    loss = compute_loss(y, tx, w)
 
-    if max_iters == 0:
-        return compute_loss(y, tx, w)
-    
     for _ in range(max_iters):
-        # compute loss, gradient
-        loss = compute_loss(y, tx, w)
         g = compute_gradient(y, tx, w)
-
         # update w by gradient
         w = w - gamma * g
+        # compute loss, gradient
+        loss = compute_loss(y, tx, w)
 
     return w, loss
 
@@ -123,14 +118,12 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         loss: corresponding loss
     """
     w = initial_w
-
-    if max_iters == 0:
-        return compute_loss_logistic(y, tx, w)
-
+    loss = compute_loss_logistic(y, tx, w)
+    
     for _ in range(max_iters):
         gradient = compute_gradient_logistic(y, tx, w)
-        loss = compute_loss_logistic(y, tx, w)
         w = w - gamma * gradient
+        loss = compute_loss_logistic(y, tx, w)
     return w, loss
 
 
@@ -150,15 +143,11 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
         loss: corresponding loss
     """
     w = initial_w
-
-    if max_iters == 0:
-        return compute_loss(y, tx, w)
-
+    loss = compute_loss_logistic(y_b, tx_b, w) + lambda_ * np.squeeze(w.T.dot(w))
+    
     for _ in range(max_iters):
         for y_b, tx_b in batch_iter(y, tx, batch_size=len(y), num_batches=1):
             gradient = compute_gradient_logistic(y_b, tx_b, w) + 2 * lambda_ * w
-            loss = compute_loss_logistic(y_b, tx_b, w) + lambda_ * np.squeeze(
-                w.T.dot(w)
-            )
             w = w - gamma * gradient
+            loss = compute_loss_logistic(y_b, tx_b, w) + lambda_ * np.squeeze(w.T.dot(w))
     return w, loss

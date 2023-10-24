@@ -19,9 +19,8 @@ def standardize(x):
 
     return nx
 
-
-def compute_loss(y, tx, w, loss_type="mse"):
-    """Calculate the loss using either MSE, MAE or logistic regression cost function.
+def compute_loss(y, tx, w):
+    """Calculate the loss using MSE.
 
     Args:
         y: shape=(N, )
@@ -32,20 +31,8 @@ def compute_loss(y, tx, w, loss_type="mse"):
         the value of the loss (a scalar), corresponding to the input parameters w.
     """
 
-    e = y - tx.dot(w)
-
-    # MSE loss
-    if loss_type == "mse":
-        loss = 1 / 2 * np.mean(e**2)
-
-    # MAE loss
-    elif loss_type == "mae":
-        loss = 1 / (2 * len(y)) * np.sum(np.abs(e))
-
-    else:
-        raise ValueError("loss_type must be either 'mse' or 'mae'")
-
-    return loss
+    e = y - tx.dot(w)   
+    return 1 / 2 * np.mean(e**2)
 
 
 def compute_gradient(y, tx, w):
