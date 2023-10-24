@@ -86,7 +86,7 @@ def compute_loss_logistic(y, tx, w):
     assert tx.shape[1] == w.shape[0]
 
     loss = np.sum(np.logaddexp(0, tx.dot(w))) - y.T.dot(tx.dot(w))
-    return np.squeeze(loss).item() * (1 / y.shape[0])
+    return np.squeeze(loss) * (1 / y.shape[0])
 
 
 def compute_gradient_logistic(y, tx, w):
