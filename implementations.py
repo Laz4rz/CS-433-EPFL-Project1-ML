@@ -143,7 +143,7 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
         loss: corresponding loss
     """
     w = initial_w
-    loss = compute_loss_logistic(y, tx, w) + lambda_ * np.squeeze(w.T.dot(w))
+    loss = compute_loss_logistic(y, tx, w) + lambda_ / 2 * np.squeeze(w.T.dot(w))
     
     for _ in range(max_iters):
         gradient = compute_gradient_logistic(y, tx, w) + 2 * lambda_ * w
