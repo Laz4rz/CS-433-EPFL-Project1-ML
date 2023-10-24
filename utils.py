@@ -42,14 +42,6 @@ def compute_loss(y, tx, w, loss_type='mse'):
     
     return loss
 
-def compute_logistic_regression_loss(y, tx, w): 
-    """
-    """
-    def theta(x: np.ndarray) -> np.ndarray:
-        return 1 / (1+np.exp(-x))
-      
-    return 1/len(y) * ((y.T @ np.log(theta(tx @ w))) + (1 - y).T @ np.log(theta(tx @ w)))
-
 def compute_gradient(y, tx, w):
     """Computes the gradient at w.
 
@@ -133,3 +125,13 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
         end_index = min((batch_num + 1) * batch_size, data_size)
         if start_index != end_index:
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
+
+
+# def compute_logistic_regression_loss(y, tx, w): 
+#     """
+#     """
+#     N = len(y)
+#     term_1 = y.T @ np.log(sigmoid(tx @ w))
+#     term_2 = (1 - y).T @ np.log(1 - sigmoid(tx @ w))
+    
+#     return 1/N * (-1) * (term_1 + term_2)
