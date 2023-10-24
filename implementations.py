@@ -52,6 +52,7 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
         
         # update w by gradient
         w = w - gamma * g
+        print(loss)
 
     return w, loss
 

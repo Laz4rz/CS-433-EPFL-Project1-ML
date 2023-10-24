@@ -16,7 +16,7 @@ def standardize(x):
     std_x = np.std(nx)
     nx = nx / std_x
     
-    return x
+    return nx
 
 def compute_loss(y, tx, w, loss_type='mse'):
     """Calculate the loss using either MSE, MAE or logistic regression cost function.
@@ -34,7 +34,7 @@ def compute_loss(y, tx, w, loss_type='mse'):
 
     # MSE loss
     if loss_type == 'mse':    
-        loss = 1/(2*len(y)) * e.T.dot(e)
+        loss = 1/2 * np.mean(e**2)
         
     # MAE loss
     elif loss_type == 'mae':
@@ -58,10 +58,8 @@ def compute_gradient(y, tx, w):
     """
 
     e = y - tx.dot(w)
-    g  = -1/len(y) * tx.T.dot(e)
+    return - tx.T.dot(e) / len(tx)
     
-    return g
-
 def sigmoid(t):
     """Vectorized sigmoid function to improve numerical precision.
 
