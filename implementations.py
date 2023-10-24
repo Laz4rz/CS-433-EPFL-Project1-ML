@@ -18,7 +18,7 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
         loss: a list of length max_iters containing the loss value (scalar) for each iteration of SGD
     """
     w = initial_w
-    batch_size = 50  # batch size is set to be constant as the function signature in project desciption does not contain the batch_size argument
+    batch_size = 1
     n_batches = tx.shape[0] // batch_size
 
     if max_iters == 0:
