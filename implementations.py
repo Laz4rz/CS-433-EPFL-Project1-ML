@@ -16,7 +16,6 @@ def mean_squared_error_sgd(y, tx, initial_w, batch_size, max_iters, gamma):
         w: a list of length max_iters containing the model parameters as numpy arrays of shape (2, ), for each iteration of SGD`   
         loss: a list of length max_iters containing the loss value (scalar) for each iteration of SGD
     """
-
     w = initial_w
     n_batches = tx.shape[0] // batch_size
 
@@ -44,7 +43,6 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
         loss: loss value of the last iteration of GD
         w: model parameters as numpy arrays of shape of the last iteration of GD
     """
-    
     w = initial_w
     for _ in range(max_iters):
         
@@ -113,11 +111,13 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         loss: corresponding loss
     """
     w = initial_w
+    losses = []
     for _ in range(max_iters):
         gradient = compute_gradient_logistic(y, tx, w)
-        loss = compute_loss_logistic
+        loss = compute_loss_logistic(y, tx, w)
+        losses.append(loss)
         w = w - gamma * gradient
-    return w, loss
+    return w, losses
 
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """Regularized logistic regression using SGD.
@@ -135,10 +135,12 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
         loss: corresponding loss
     """
     w = initial_w
+    losses = []
     for _ in range(max_iters):
         # gamma = 1/(n_iter+1) not sure? Gamma is passed as constant in the project description
-        for y_b, tx_b in batch_iter(y, tx, batch_size=30, num_batches=1):
+        for y_b, tx_b in batch_iter(y, tx, batch_size=len(y), num_batches=1):
             gradient = compute_gradient_logistic(y_b, tx_b, w) + 2 * lambda_ * w
             loss = compute_loss_logistic(y_b, tx_b, w) + lambda_ * np.squeeze(w.T.dot(w))
+            losses.append(loss)
             w = w - gamma * gradient
-    return w, loss
+    return w, losses
