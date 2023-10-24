@@ -21,6 +21,9 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
     batch_size = 50  # batch size is set to be constant as the function signature in project desciption does not contain the batch_size argument
     n_batches = tx.shape[0] // batch_size
 
+    if max_iters == 0:
+        return compute_loss(y, tx, w)
+
     for _ in range(max_iters):
         grad = 0
         for batch_y, batch_tx in batch_iter(y, tx, batch_size, n_batches):
@@ -47,6 +50,10 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
         w: model parameters as numpy arrays of shape of the last iteration of GD
     """
     w = initial_w
+
+    if max_iters == 0:
+        return compute_loss(y, tx, w)
+    
     for _ in range(max_iters):
         # compute loss, gradient
         loss = compute_loss(y, tx, w)
@@ -116,6 +123,10 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         loss: corresponding loss
     """
     w = initial_w
+
+    if max_iters == 0:
+        return compute_loss_logistic(y, tx, w)
+
     for _ in range(max_iters):
         gradient = compute_gradient_logistic(y, tx, w)
         loss = compute_loss_logistic(y, tx, w)
@@ -139,6 +150,10 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
         loss: corresponding loss
     """
     w = initial_w
+
+    if max_iters == 0:
+        return compute_loss(y, tx, w)
+
     for _ in range(max_iters):
         for y_b, tx_b in batch_iter(y, tx, batch_size=len(y), num_batches=1):
             gradient = compute_gradient_logistic(y_b, tx_b, w) + 2 * lambda_ * w
