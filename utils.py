@@ -75,7 +75,7 @@ def sigmoid(t):
             return np.exp(z) / (np.exp(z) + 1)
         else:
             return 1 / (1 + np.exp(-z))
-    return np.vectorize(sig_elem)(x)
+    return np.vectorize(sig_elem)(t)
 
 def compute_loss_logistic(y, tx, w):
     """Compute the cost by negative log likelihood.
