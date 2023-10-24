@@ -1,19 +1,22 @@
 import numpy as np
 
 def standardize(x):
+    """Standardize the dataset.
+
+    Args:
+        x: the dataset to be standardized.
+    Returns:
+        nx: the standardized dataset.
     """
-        The value -999 is used as a placeholder for missing values (undefined).
-        There is an interesting value "PRI_JET_NUM":.
-    """
+   
+    nx = np.c_[np.ones((x.shape[0], 1)), x]
     
-    x = np.c_[np.ones((x.shape[0], 1)), x]
+    mean_x = np.mean(nx)
+    nx = nx - mean_x
+    std_x = np.std(nx)
+    nx = nx / std_x
     
-    mean_x = np.mean(x)
-    x = x - mean_x
-    std_x = np.std(x)
-    x = x / std_x
-    
-    return x
+    return nx
 
 def compute_loss(y, tx, w, loss_type='mse'):
     """Calculate the loss using either MSE, MAE or logistic regression cost function.
@@ -31,7 +34,7 @@ def compute_loss(y, tx, w, loss_type='mse'):
 
     # MSE loss
     if loss_type == 'mse':    
-        loss = 1/(2*len(y)) * e.T.dot(e)
+        loss = 1/2 * np.mean(e**2)
         
     # MAE loss
     elif loss_type == 'mae':
@@ -41,14 +44,6 @@ def compute_loss(y, tx, w, loss_type='mse'):
         raise ValueError("loss_type must be either 'mse' or 'mae'")
     
     return loss
-
-def compute_logistic_regression_loss(y, tx, w): 
-    """
-    """
-    def theta(x: np.ndarray) -> np.ndarray:
-        return 1 / (1+np.exp(-x))
-      
-    return 1/len(y) * ((y.T @ np.log(theta(tx @ w))) + (1 - y).T @ np.log(theta(tx @ w)))
 
 def compute_gradient(y, tx, w):
     """Computes the gradient at w.
@@ -63,12 +58,10 @@ def compute_gradient(y, tx, w):
     """
 
     e = y - tx.dot(w)
-    g  = -1/len(y) * tx.T.dot(e)
+    return - tx.T.dot(e) / len(tx)
     
-    return g
-
 def sigmoid(t):
-    """Apply sigmoid function on t.
+    """Vectorized sigmoid function to improve numerical precision.
 
     Args:
         t: scalar or numpy array
@@ -76,12 +69,13 @@ def sigmoid(t):
     Returns:
         scalar or numpy array
     """
-    
-    return 1.0 / (1 + np.exp(-t))
-    
-    # return np.where(t >= 0, 
-    #                 1 / (1 + np.exp(-t)), 
-    #                 np.exp(t) / (1 + np.exp(t)))
+        
+    def sig_elem(z):
+        if z <= 0:
+            return np.exp(z) / (np.exp(z) + 1)
+        else:
+            return 1 / (1 + np.exp(-z))
+    return np.vectorize(sig_elem)(x)
 
 def compute_loss_logistic(y, tx, w):
     """Compute the cost by negative log likelihood.
@@ -95,8 +89,11 @@ def compute_loss_logistic(y, tx, w):
         logistic loss
     """
     
-    y = y.reshape((-1, 1))
-    return np.sum(np.logaddexp(0, tx.dot(w))) - y.T.dot(tx.dot(w))
+    assert y.shape[0] == tx.shape[0]
+    assert tx.shape[1] == w.shape[0]
+    
+    loss = np.sum(np.logaddexp(0, tx.dot(w))) - y.T.dot(tx.dot(w))
+    return np.squeeze(loss).item() * (1 / y.shape[0])
 
 def compute_gradient_logistic(y, tx, w):
     """Compute the gradient of loss for logistic regression.
@@ -110,7 +107,8 @@ def compute_gradient_logistic(y, tx, w):
         :return: logistic gradient
     """
     
-    return tx.T.dot(sigmoid(tx.dot(w))-y)
+    pred = sigmoid(tx.dot(w))
+    return tx.T.dot(pred-y) * (1 / y.shape[0])
 
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     """
@@ -133,3 +131,4 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
         end_index = min((batch_num + 1) * batch_size, data_size)
         if start_index != end_index:
             yield shuffled_y[start_index:end_index], shuffled_tx[start_index:end_index]
+            
