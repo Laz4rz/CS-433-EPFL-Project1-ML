@@ -15,5 +15,5 @@ def compute_subgradient_mae(y, tx, w):
     N = y.shape[0]
     e = y - tx @ w
 
-    grad = (-1/N) * tx.T @ np.sign(e)
+    grad = (-1 / N) * tx.T @ np.sign(e)
     return grad

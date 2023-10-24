@@ -1,6 +1,7 @@
 import numpy as np
 from utils import *
 
+
 def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
     """The Stochastic Gradient Descent algorithm (SGD).
 
@@ -13,11 +14,11 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
         gamma: a scalar denoting the stepsize
 
     Returns:
-        w: a list of length max_iters containing the model parameters as numpy arrays of shape (2, ), for each iteration of SGD`   
+        w: a list of length max_iters containing the model parameters as numpy arrays of shape (2, ), for each iteration of SGD`
         loss: a list of length max_iters containing the loss value (scalar) for each iteration of SGD
     """
     w = initial_w
-    batch_size = 50 # batch size is set to be constant as the function signature in project desciption does not contain the batch_size argument
+    batch_size = 50  # batch size is set to be constant as the function signature in project desciption does not contain the batch_size argument
     n_batches = tx.shape[0] // batch_size
 
     for _ in range(max_iters):
@@ -25,10 +26,11 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
         for batch_y, batch_tx in batch_iter(y, tx, batch_size, n_batches):
             grad += compute_gradient(batch_y, batch_tx, w)
         grad = grad / n_batches
-        w = w - gamma * grad 
+        w = w - gamma * grad
         loss = compute_loss(y, tx, w)
-        
+
     return w, loss
+
 
 def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
     """Gradient descent algorithm (GD).
@@ -39,7 +41,7 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
         initial_w: initial weight vector
         max_iters: number of iterations
         gamma: step size
-    
+
     Returns:
         loss: loss value of the last iteration of GD
         w: model parameters as numpy arrays of shape of the last iteration of GD
@@ -49,20 +51,21 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
         # compute loss, gradient
         loss = compute_loss(y, tx, w)
         g = compute_gradient(y, tx, w)
-        
+
         # update w by gradient
         w = w - gamma * g
 
     return w, loss
 
+
 def least_squares(y, tx):
     """Least squares.
-    
+
     Args:
         y: outpus/labels
         tx: standardized inputs/features augmented with the first column filled with 1's
         lambda_: penalty factor
-        
+
     Returns:
         loss: loss value of the last iteration
         w: model parameters as numpy arrays of the last iteration
@@ -70,14 +73,15 @@ def least_squares(y, tx):
     """
     a = tx.T.dot(tx)
     b = tx.T.dot(y)
-    
+
     w = np.linalg.solve(a, b)
     loss = compute_loss(y, tx, w)
     return w, loss
 
+
 def ridge_regression(y, tx, lambda_):
     """Ridge regression.
-        
+
     Args:
         y: outpus/labels
         tx: standardized inputs/features augmented with the first column filled with 1's
@@ -90,10 +94,11 @@ def ridge_regression(y, tx, lambda_):
     aI = 2 * tx.shape[0] * lambda_ * np.identity(tx.shape[1])
     a = tx.T.dot(tx) + aI
     b = tx.T.dot(y)
-    
+
     w = np.linalg.solve(a, b)
     loss = compute_loss(y, tx, w)
     return w, loss
+
 
 def logistic_regression(y, tx, initial_w, max_iters, gamma):
     """Logistic regression with loss minimized using gradient descent
@@ -117,6 +122,7 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         w = w - gamma * gradient
     return w, loss
 
+
 def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     """Regularized logistic regression using SGD.
 
@@ -136,6 +142,8 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     for _ in range(max_iters):
         for y_b, tx_b in batch_iter(y, tx, batch_size=len(y), num_batches=1):
             gradient = compute_gradient_logistic(y_b, tx_b, w) + 2 * lambda_ * w
-            loss = compute_loss_logistic(y_b, tx_b, w) + lambda_ * np.squeeze(w.T.dot(w))
+            loss = compute_loss_logistic(y_b, tx_b, w) + lambda_ * np.squeeze(
+                w.T.dot(w)
+            )
             w = w - gamma * gradient
     return w, loss

@@ -7,10 +7,11 @@ Gradient Descent
 from costs import compute_loss
 import numpy as np
 
+
 def compute_gradient_from_def(y, tx, w, delta=0.00000001):
     """Computes the gradient at w from definition:
 
-    grad(w) = [(L(w0 + delta) - L(w0)) / delta, (L(w1 + delta) - L(w1)) / delta] 
+    grad(w) = [(L(w0 + delta) - L(w0)) / delta, (L(w1 + delta) - L(w1)) / delta]
 
     Args:
         y: numpy array of shape=(N, )
@@ -44,9 +45,8 @@ def compute_gradient(y, tx, w):
     N = y.shape[0]
 
     e = y - tx @ w
-    grad = -1/N * tx.T @ e
+    grad = -1 / N * tx.T @ e
     return grad
-
 
 
 def gradient_descent(y, tx, initial_w, max_iters, gamma):
@@ -69,7 +69,7 @@ def gradient_descent(y, tx, initial_w, max_iters, gamma):
     w = initial_w
     for n_iter in range(max_iters):
         grad = compute_gradient(y, tx, ws[-1])
-        w = ws[-1] - gamma * grad # E[grad(L_n(w))] = grad(L(w)) so we approx
+        w = ws[-1] - gamma * grad  # E[grad(L_n(w))] = grad(L(w)) so we approx
         loss = compute_loss(y, tx, w)
         # store w and loss
         ws.append(w)

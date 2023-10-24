@@ -40,4 +40,3 @@ def compute_grid_search(y, tx, grid_w0, grid_w1):
             losses[enum0, enum1] = compute_loss(y, tx, np.array([w0, w1]))
 
     return losses
-

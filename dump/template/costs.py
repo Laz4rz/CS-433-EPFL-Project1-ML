@@ -18,5 +18,5 @@ def compute_loss(y: np.array, tx: np.array, w: np.array) -> int:
     N = y.shape[0]
 
     e = y - tx @ w
-    loss = 1/(2*N) * e.T @ e
+    loss = 1 / (2 * N) * e.T @ e
     return loss

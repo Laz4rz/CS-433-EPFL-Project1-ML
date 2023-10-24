@@ -6,6 +6,7 @@ Stochastic Gradient Descent
 from helpers import batch_iter
 from costs import compute_loss
 
+
 def compute_stoch_gradient(y, tx, w):
     """Compute a stochastic gradient at w from a data sample batch of size B, where B < N, and their corresponding labels.
 
@@ -24,10 +25,10 @@ def compute_stoch_gradient(y, tx, w):
 
     # y_temp = y[stoch_idx]
     # tx_temp = tx[stoch_idx]
-    
+
     e = y - tx @ w
 
-    grad = - 1/N * tx.T @ e
+    grad = -1 / N * tx.T @ e
     return grad
 
 
@@ -53,16 +54,16 @@ def stochastic_gradient_descent(y, tx, initial_w, batch_size, max_iters, gamma):
     w = initial_w
     n_batches = tx.shape[0] // batch_size
     for n_iter in range(max_iters):
-        grad = 0 
+        grad = 0
         for batch_y, batch_tx in batch_iter(y, tx, batch_size, n_batches):
             grad += compute_stoch_gradient(batch_y, batch_tx, w)
         grad = grad / n_batches
-        w = w - gamma * grad # E[grad(L_n(w))] = grad(L(w)) so we approx
+        w = w - gamma * grad  # E[grad(L_n(w))] = grad(L(w)) so we approx
         loss = compute_loss(y, tx, w)
-            # store w and loss
+        # store w and loss
         ws.append(w)
         losses.append(loss)
-        
+
         print(
             "SGD iter. {bi}/{ti}: loss={l}, w0={w0}, w1={w1}".format(
                 bi=n_iter, ti=max_iters - 1, l=loss, w0=w[0], w1=w[1]
