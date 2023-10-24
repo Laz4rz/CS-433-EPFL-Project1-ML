@@ -1,7 +1,7 @@
 import numpy as np
 from utils import *
 
-def mean_squared_error_sgd(y, tx, initial_w, batch_size, max_iters, gamma):
+def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
     """The Stochastic Gradient Descent algorithm (SGD).
 
     Args:
@@ -17,6 +17,7 @@ def mean_squared_error_sgd(y, tx, initial_w, batch_size, max_iters, gamma):
         loss: a list of length max_iters containing the loss value (scalar) for each iteration of SGD
     """
     w = initial_w
+    batch_size = 50 # batch size is set to be constant as the function signature in project desciption does not contain the batch_size argument
     n_batches = tx.shape[0] // batch_size
 
     for _ in range(max_iters):
