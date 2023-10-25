@@ -19,6 +19,7 @@ def standardize(x):
 
     return nx
 
+
 def compute_loss(y, tx, w):
     """Calculate the loss using MSE.
 
@@ -31,7 +32,7 @@ def compute_loss(y, tx, w):
         the value of the loss (a scalar), corresponding to the input parameters w.
     """
 
-    e = y - tx.dot(w)   
+    e = y - tx.dot(w)
     return 1 / 2 * np.mean(e**2)
 
 
