@@ -1,5 +1,91 @@
 import numpy as np
-from src.utils import *
+import src.utils.functions as utils
+
+
+def compute_loss(y, tx, w):
+    """Calculate the loss using MSE.
+
+    Args:
+        y: shape=(N, )
+        tx: shape=(N,2)
+        w: shape=(2,). The vector of model parameters.
+
+    Returns:
+        the value of the loss (a scalar), corresponding to the input parameters w.
+    """
+
+    e = y - tx.dot(w)
+    return 1 / 2 * np.mean(e**2)
+
+
+def compute_gradient(y, tx, w):
+    """Computes the gradient at w.
+
+    Args:
+        y shape=(N, ):
+        tx shape=(N,2):
+        w: shape=(2, ). The vector of model parameters.
+
+    Returns:
+        g: array of shape (2, ) (same shape as w), containing the gradient of the loss at w.
+    """
+
+    e = y - tx.dot(w)
+    return -tx.T.dot(e) / len(tx)
+
+
+def sigmoid(t):
+    """Vectorized sigmoid function to improve numerical precision.
+
+    Args:
+        t: scalar or numpy array
+
+    Returns:
+        scalar or numpy array
+    """
+
+    def sig_elem(z):
+        if z <= 0:
+            return np.exp(z) / (np.exp(z) + 1)
+        else:
+            return 1 / (1 + np.exp(-z))
+
+    return np.vectorize(sig_elem)(t)
+
+
+def compute_loss_logistic(y, tx, w):
+    """Compute the cost by negative log likelihood.
+
+    Args:
+        y: outpus/labels
+        tx: standardized inputs/features augmented with the first column filled with 1's
+        w: weights used to calculate loss
+
+    Returns:
+        logistic loss
+    """
+
+    assert y.shape[0] == tx.shape[0]
+    assert tx.shape[1] == w.shape[0]
+
+    loss = np.sum(np.logaddexp(0, tx.dot(w))) - y.T.dot(tx.dot(w))
+    return np.squeeze(loss) * (1 / y.shape[0])
+
+
+def compute_gradient_logistic(y, tx, w):
+    """Compute the gradient of loss for logistic regression.
+
+    Args:
+        y: outpus/labels
+        tx: standardized inputs/features augmented with the first column filled with 1's
+        w: weights
+
+    Returns:
+        :return: logistic gradient
+    """
+
+    pred = sigmoid(tx.dot(w))
+    return tx.T.dot(pred - y) * (1 / y.shape[0])
 
 
 def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
@@ -51,7 +137,7 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
 
     for _ in range(max_iters):
         grad = 0
-        for batch_y, batch_tx in batch_iter(y, tx, batch_size, n_batches):
+        for batch_y, batch_tx in utils.batch_iter(y, tx, batch_size, n_batches):
             grad += compute_gradient(batch_y, batch_tx, w)
         grad = grad / n_batches
         w = w - gamma * grad

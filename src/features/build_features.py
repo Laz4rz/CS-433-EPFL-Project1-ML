@@ -1,11 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-build_data.py: File containing the code used to build the data for the project.
+build_data.py: File containing the code used for data preprocessing.
 """
 
 import numpy as np
-import src.constants as c
+import src.utils.constants as c
 
 
 def standardize(data: np.ndarray) -> np.ndarray:
@@ -64,17 +64,17 @@ def less_than_percent_nans(
     return x[:, less_than_percent_nans_columns_mask], removed_columns
 
 
-def build_train_data(
+def build_train_features(
     data: np.ndarray, percentage: int = c.PERCENTAGE_NAN
 ) -> np.ndarray:
-    """Build the train data.
+    """Build the train features.
 
     Args:
         data (np.ndarray): train data.
         percentage (float, optional): Percentage of NaN values in columns to be removed. Defaults to 90.
 
     Returns:
-        np.ndarray: the standardized train data.
+        np.ndarray: the train features.
         np.ndarray: indexes of the columns with more than percentage NaN values.
     """
     x_train_standardized, removed_cols = less_than_percent_nans(
@@ -85,15 +85,17 @@ def build_train_data(
     return x_train_standardized, removed_cols
 
 
-def build_test_data(x_test: np.ndarray, removed_cols: np.ndarray = []) -> np.ndarray:
-    """Build the test data.
+def build_test_features(
+    x_test: np.ndarray, removed_cols: np.ndarray = []
+) -> np.ndarray:
+    """Build the test features.
 
     Args:
         x_test (np.ndarray):. test data
         removed_cols (np.ndarray): columns to be removed.
 
     Returns:
-        np.ndarray: the standardized test data.
+        np.ndarray: the test features.
     """
 
     cols = np.arange(x_test.shape[1])

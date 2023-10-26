@@ -1,3 +1,3 @@
 #!/usr/bin/env python
 # encoding: utf-8
-"""Src package."""
+"""Utils package."""
