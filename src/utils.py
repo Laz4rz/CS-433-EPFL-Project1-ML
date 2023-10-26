@@ -1,25 +1,6 @@
 import numpy as np
 
 
-def standardize(x):
-    """Standardize the dataset.
-
-    Args:
-        x: the dataset to be standardized.
-    Returns:
-        nx: the standardized dataset.
-    """
-
-    nx = np.c_[np.ones((x.shape[0], 1)), x]
-
-    mean_x = np.mean(nx)
-    nx = nx - mean_x
-    std_x = np.std(nx)
-    nx = nx / std_x
-
-    return nx
-
-
 def compute_loss(y, tx, w):
     """Calculate the loss using MSE.
 

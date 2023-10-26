@@ -5,6 +5,8 @@ build_data.py: File containing the code used to build the data for the project.
 """
 
 import numpy as np
+import src.constants as c
+
 
 def standardize(data: np.ndarray) -> np.ndarray:
     """Standardize the dataset.
@@ -24,6 +26,7 @@ def standardize(data: np.ndarray) -> np.ndarray:
 
     return new_data
 
+
 def replace_nan_mean(x: np.ndarray) -> np.ndarray:
     """Replace NaN values with the mean of the column.
 
@@ -32,15 +35,17 @@ def replace_nan_mean(x: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: dataset with NaN values replaced with the mean of the column.
     """
-    
+
     x = x.copy()
     for col in range(x.shape[1]):
         mean = np.nanmean(x[:, col])
-        x[np.isnan(x[:,col]), col] = mean
+        x[np.isnan(x[:, col]), col] = mean
     return x
 
 
-def less_than_percent_nans(x: np.ndarray, percentage: int = 90) -> np.ndarray:
+def less_than_percent_nans(
+    x: np.ndarray, percentage: int = c.PERCENTAGE_NAN
+) -> np.ndarray:
     """Remove columns with more than percentage NaN values.
 
     Args:
@@ -48,18 +53,20 @@ def less_than_percent_nans(x: np.ndarray, percentage: int = 90) -> np.ndarray:
         percentage (int): percentage of NaN values.
 
     Returns:
-        np.ndarray: indexes of the columns with more than percentage NaN values.
         np.ndarray: dataset with columns with more than percentage NaN values removed.
+        np.ndarray: indexes of the columns with more than percentage NaN values.
     """
-    
+
     x = x.copy()
     nan_percentage_per_column = np.isnan(x).sum(0) / len(x)
-    less_than_percent_nans_columns_mask = nan_percentage_per_column < (percentage / 100)  
-    removed_columns = np.arange(x.shape[1])[~less_than_percent_nans_columns_mask] 
-    return  removed_columns, x[:, less_than_percent_nans_columns_mask]
+    less_than_percent_nans_columns_mask = nan_percentage_per_column < (percentage / 100)
+    removed_columns = np.arange(x.shape[1])[~less_than_percent_nans_columns_mask]
+    return x[:, less_than_percent_nans_columns_mask], removed_columns
 
 
-def build_train_data(data: np.ndarray, percentage: float = 90) -> np.ndarray:
+def build_train_data(
+    data: np.ndarray, percentage: int = c.PERCENTAGE_NAN
+) -> np.ndarray:
     """Build the train data.
 
     Args:
@@ -68,11 +75,14 @@ def build_train_data(data: np.ndarray, percentage: float = 90) -> np.ndarray:
 
     Returns:
         np.ndarray: the standardized train data.
+        np.ndarray: indexes of the columns with more than percentage NaN values.
     """
-    x_train_standardized = less_than_percent_nans(data=data, percentage=percentage)
-    x_train_standardized = replace_nan_mean(x_train_standardized)
-    x_train_standardized = standardize(x_train_standardized)
-    return x_train_standardized
+    x_train_standardized, removed_cols = less_than_percent_nans(
+        x=data, percentage=percentage
+    )
+    x_train_standardized = replace_nan_mean(x=x_train_standardized)
+    x_train_standardized = standardize(data=x_train_standardized)
+    return x_train_standardized, removed_cols
 
 
 def build_test_data(x_test: np.ndarray, removed_cols: np.ndarray = []) -> np.ndarray:
@@ -85,10 +95,10 @@ def build_test_data(x_test: np.ndarray, removed_cols: np.ndarray = []) -> np.nda
     Returns:
         np.ndarray: the standardized test data.
     """
-    
+
     cols = np.arange(x_test.shape[1])
     cols = np.delete(cols, removed_cols)
     x_test_standardized = x_test[:, cols]
-    x_test_standardized = replace_nan_mean(x_test_standardized)
-    x_test_standardized = standardize(x_test_standardized)
+    x_test_standardized = replace_nan_mean(x=x_test_standardized)
+    x_test_standardized = standardize(data=x_test_standardized)
     return x_test_standardized

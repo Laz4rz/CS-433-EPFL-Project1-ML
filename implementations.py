@@ -1,5 +1,32 @@
 import numpy as np
-from utils import *
+from src.utils import *
+
+
+def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
+    """Gradient descent algorithm (GD).
+
+    Args:
+        y: outpus/labels
+        tx: standardized inputs/features augmented with the first column filled with 1's
+        initial_w: initial weight vector
+        max_iters: number of iterations
+        gamma: step size
+
+    Returns:
+        loss: loss value of the last iteration of GD
+        w: model parameters as numpy arrays of shape of the last iteration of GD
+    """
+    w = initial_w
+    loss = compute_loss(y, tx, w)
+
+    for _ in range(max_iters):
+        g = compute_gradient(y, tx, w)
+        # update w by gradient
+        w = w - gamma * g
+        # compute loss, gradient
+        loss = compute_loss(y, tx, w)
+
+    return w, loss
 
 
 def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
@@ -28,33 +55,6 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
             grad += compute_gradient(batch_y, batch_tx, w)
         grad = grad / n_batches
         w = w - gamma * grad
-        loss = compute_loss(y, tx, w)
-
-    return w, loss
-
-
-def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
-    """Gradient descent algorithm (GD).
-
-    Args:
-        y: outpus/labels
-        tx: standardized inputs/features augmented with the first column filled with 1's
-        initial_w: initial weight vector
-        max_iters: number of iterations
-        gamma: step size
-
-    Returns:
-        loss: loss value of the last iteration of GD
-        w: model parameters as numpy arrays of shape of the last iteration of GD
-    """
-    w = initial_w
-    loss = compute_loss(y, tx, w)
-
-    for _ in range(max_iters):
-        g = compute_gradient(y, tx, w)
-        # update w by gradient
-        w = w - gamma * g
-        # compute loss, gradient
         loss = compute_loss(y, tx, w)
 
     return w, loss
