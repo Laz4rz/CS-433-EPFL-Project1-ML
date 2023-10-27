@@ -4,8 +4,32 @@
 build_data.py: File containing the code used for data preprocessing.
 """
 
+import re as re
+import os as os
 import numpy as np
 import src.utils.constants as c
+
+
+def drop_calculated_features(x: np.ndarray) -> np.ndarray:
+    """Drop calculated features.
+       These features are the ones that start with an underscore
+       (Exceptions:  _DENSTR2, _GEOSTR, and _STATE).
+
+    Args:
+        x (np.ndarray): dataset.
+
+    Returns:
+        np.ndarray: dataset without calculated features.
+    """
+    with open(os.path.join("./data", "x_train.csv")) as f:
+        first_line = f.readline().strip("\n")
+    cols_name = first_line.split(",")
+    cols_name = np.asarray(cols_name)
+    cols_name = cols_name[1:]
+    rgx = "^_(?!DENSTR2$|GEOSTR$|STATE$)[A-Za-z_]\w*"
+    calculated_features_idx = np.where([re.match(rgx, col) for col in cols_name])[0]
+    new_data = np.delete(x, calculated_features_idx, axis=1)
+    return new_data
 
 
 def standardize(data: np.ndarray) -> np.ndarray:
@@ -64,23 +88,54 @@ def less_than_percent_nans(
     return x[:, less_than_percent_nans_columns_mask], removed_columns
 
 
+def get_most_freq_value(x: np.ndarray) -> np.ndarray:
+    """Get the most frequent value of a 1D array.
+
+    Args:
+        x (np.ndarray): 1D array.
+
+    Returns:
+        np.ndarray: the most frequent value.
+    """
+    values, counts = np.unique(x, return_counts=True)
+    return values[np.argmax(counts)]
+
+
+def replace_nan_most_freq(x: np.ndarray) -> np.ndarray:
+    """Replace NaN values with the most frequent value of the column.
+
+    Args:
+        x (np.ndarray): dataset.
+
+    Returns:
+        np.ndarray: dataset with NaN values replaced with the most frequent value of the column.
+    """
+    x = x.copy()
+    for col in range(x.shape[1]):
+        most_freq_val = get_most_freq_value(x[:, col])
+        x[np.isnan(x[:, col]), col] = most_freq_val
+    return x
+
+
 def build_train_features(
-    data: np.ndarray, percentage: int = c.PERCENTAGE_NAN
+    x: np.ndarray, percentage: int = c.PERCENTAGE_NAN
 ) -> np.ndarray:
     """Build the train features.
 
     Args:
-        data (np.ndarray): train data.
+        x (np.ndarray): dataset.
         percentage (float, optional): Percentage of NaN values in columns to be removed. Defaults to 90.
 
     Returns:
         np.ndarray: the train features.
         np.ndarray: indexes of the columns with more than percentage NaN values.
     """
+    x_train_standardized = drop_calculated_features(x=x)
     x_train_standardized, removed_cols = less_than_percent_nans(
-        x=data, percentage=percentage
+        x=x_train_standardized, percentage=percentage
     )
-    x_train_standardized = replace_nan_mean(x=x_train_standardized)
+    # x_train_standardized = replace_nan_mean(x=x_train_standardized)
+    x_train_standardized = replace_nan_most_freq(x=x_train_standardized)
     x_train_standardized = standardize(data=x_train_standardized)
     return x_train_standardized, removed_cols
 
