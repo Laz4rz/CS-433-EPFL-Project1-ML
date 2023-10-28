@@ -24,7 +24,17 @@ def set_random_seed(seed: int = 42) -> None:
     random.seed(seed)
     os.environ["PYTHONHASHSEED"] = str(seed)
     print(f"Random seed set to {seed}")
-    
+
+def initialize_weights(x: np.ndarray) -> np.ndarray:
+    """Initialize the weights.
+
+    Args:
+        x (np.ndarray): dataset.
+
+    Returns:
+        np.ndarray: weights.
+    """
+    return np.zeros((x.shape[1], 1))
 
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     """
