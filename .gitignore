@@ -8,3 +8,6 @@ __pycache__/
 
 # Models folder
 models/
+
+# Data folder 
+data/
