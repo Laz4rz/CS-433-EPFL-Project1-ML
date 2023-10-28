@@ -118,14 +118,14 @@ def replace_nan_most_freq(x: np.ndarray) -> np.ndarray:
 
 
 def build_train_features(
-    x: np.ndarray, percentage: int = c.PERCENTAGE_NAN
+    x: np.ndarray, percentage: int = c.PERCENTAGE_NAN, fill_nans: str = None
 ) -> np.ndarray:
     """Build the train features.
 
     Args:
         x (np.ndarray): dataset.
-        percentage (float, optional): Percentage of NaN values in columns to be removed. Defaults to 90.
-
+        percentage (float, optional): Threshold of NaN values in columns to be removed. Defaults to 90.
+        fill_nans (str, optional): Method to fill nan values. Defaults to None. 
     Returns:
         np.ndarray: the train features.
         np.ndarray: indexes of the columns with more than percentage NaN values.
@@ -134,8 +134,10 @@ def build_train_features(
     x_train_standardized, removed_cols = less_than_percent_nans(
         x=x_train_standardized, percentage=percentage
     )
-    # x_train_standardized = replace_nan_mean(x=x_train_standardized)
-    x_train_standardized = replace_nan_most_freq(x=x_train_standardized)
+    if fill_nans == "mean":
+        x_train_standardized = replace_nan_mean(x=x_train_standardized)
+    elif fill_nans == "most_freq":
+        x_train_standardized = replace_nan_most_freq(x=x_train_standardized)
     x_train_standardized = standardize(data=x_train_standardized)
     return x_train_standardized, removed_cols
 
