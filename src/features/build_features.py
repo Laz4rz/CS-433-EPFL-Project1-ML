@@ -117,9 +117,41 @@ def replace_nan_most_freq(x: np.ndarray) -> np.ndarray:
         x[np.isnan(x[:, col]), col] = most_freq_val
     return x
 
+def replace_nan_random(x: np.ndarray) -> np.ndarray:
+    """Replace NaN values with a random value of the column.
+
+    Args:
+        x (np.ndarray): dataset.
+
+    Returns:
+        np.ndarray: dataset with NaN values replaced with a random value of the column.
+    """
+    x = x.copy()
+    for col in range(x.shape[1]):
+        # rand = np.random.choice(x_train[~np.isnan(x_train[:, 100]), 100], np.isnan(x_train[:, 100]).sum())
+        x[np.isnan(x[:, col]), col] = np.random.uniform(np.nanmin(x[:, col]), np.nanmax(x[:, col]), np.isnan(x[:, col]).sum())
+    return x
+
+def balance_data(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+    """Balance the dataset.
+
+    Args:
+        x (np.ndarray): dataset.
+        y (np.ndarray): labels.
+
+    Returns:
+        np.ndarray: balanced dataset.
+        np.ndarray: balanced labels.
+    """
+    y0_idx = np.random.choice(np.arange(0, len(y))[(y == 0).squeeze()], np.sum(y[y == 1]))
+    balanced_idx = np.concatenate([y0_idx, np.arange(0, len(y))[(y == 1).squeeze()]])
+    balanced_idx = np.sort(balanced_idx)
+    y_balanced = y[balanced_idx]
+    x_balanced = x[balanced_idx]
+    return x_balanced, y_balanced
 
 def build_train_features(
-    x: np.ndarray, percentage: int = c.PERCENTAGE_NAN, fill_nans: str = None
+    x: np.ndarray, y: np.ndarray, percentage: int = c.PERCENTAGE_NAN, fill_nans: str = None, balance: bool = False
 ) -> np.ndarray:
     """Build the train features.
 
@@ -127,6 +159,7 @@ def build_train_features(
         x (np.ndarray): dataset.
         percentage (float, optional): Threshold of NaN values in columns to be removed. Defaults to 90.
         fill_nans (str, optional): Method to fill nan values. Defaults to None. 
+        balance (bool, optional): Whether to balance the dataset or not. Defaults to False.
     Returns:
         np.ndarray: the train features.
         np.ndarray: indexes of the calculated features.
@@ -142,10 +175,16 @@ def build_train_features(
             x_train_standardized = replace_nan_mean(x=x_train_standardized)
         elif fill_nans == "most_freq":
             x_train_standardized = replace_nan_most_freq(x=x_train_standardized)
-        assert(np.sum(np.isnan(x_train_standardized)) == 0)
+        elif fill_nans == "random":
+            x_train_standardized = replace_nan_random(x=x_train_standardized)
+        assert(np.sum(np.isnan(x_train_standardized)) == 0), "There are still NaN values in the dataset."
 
+    if balance:
+        x_train_standardized, y = balance_data(x=x_train_standardized, y=y)
+        assert(x_train_standardized.shape[0] == y.shape[0]), "The number of samples and labels is not the same."
+    
     x_train_standardized = standardize(data=x_train_standardized)
-    return x_train_standardized, calculated_cols_idxs, more_than_nan_idxs
+    return x_train_standardized, y, calculated_cols_idxs, more_than_nan_idxs
 
 
 def build_test_features(
