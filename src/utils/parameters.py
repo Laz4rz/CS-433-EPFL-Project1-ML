@@ -15,4 +15,3 @@ class Parameters:
     gamma: float = 0.01
     threshold = 1e-8
     batch_size: int = 32
-    initial_w: np.ndarray
