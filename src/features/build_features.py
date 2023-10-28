@@ -132,7 +132,7 @@ def replace_nan_random(x: np.ndarray) -> np.ndarray:
         x[np.isnan(x[:, col]), col] = np.random.uniform(np.nanmin(x[:, col]), np.nanmax(x[:, col]), np.isnan(x[:, col]).sum())
     return x
 
-def balance_data(x: np.ndarray, y: np.ndarray) -> np.ndarray:
+def balance_data(x: np.ndarray, y: np.ndarray, scale: int = 1) -> np.ndarray:
     """Balance the dataset.
 
     Args:
@@ -143,7 +143,9 @@ def balance_data(x: np.ndarray, y: np.ndarray) -> np.ndarray:
         np.ndarray: balanced dataset.
         np.ndarray: balanced labels.
     """
-    y0_idx = np.random.choice(np.arange(0, len(y))[(y == 0).squeeze()], np.sum(y[y == 1]))
+    y1_size = np.sum(y[y == 1])
+    y0_balaned_size = y1_size * scale
+    y0_idx = np.random.choice(np.arange(0, len(y))[(y == 0).squeeze()], y0_balaned_size)
     balanced_idx = np.concatenate([y0_idx, np.arange(0, len(y))[(y == 1).squeeze()]])
     balanced_idx = np.sort(balanced_idx)
     y_balanced = y[balanced_idx]
@@ -151,7 +153,7 @@ def balance_data(x: np.ndarray, y: np.ndarray) -> np.ndarray:
     return x_balanced, y_balanced
 
 def build_train_features(
-    x: np.ndarray, y: np.ndarray, percentage: int = c.PERCENTAGE_NAN, fill_nans: str = None, balance: bool = False
+    x: np.ndarray, y: np.ndarray, percentage: int = c.PERCENTAGE_NAN, fill_nans: str = None, balance: bool = False, balance_scale: int = 1
 ) -> np.ndarray:
     """Build the train features.
 
@@ -180,7 +182,7 @@ def build_train_features(
         assert(np.sum(np.isnan(x_train_standardized)) == 0), "There are still NaN values in the dataset."
 
     if balance:
-        x_train_standardized, y = balance_data(x=x_train_standardized, y=y)
+        x_train_standardized, y = balance_data(x=x_train_standardized, y=y, scale=balance_scale)
         assert(x_train_standardized.shape[0] == y.shape[0]), "The number of samples and labels is not the same."
     
     x_train_standardized = standardize(data=x_train_standardized)
@@ -188,7 +190,7 @@ def build_train_features(
 
 
 def build_test_features(
-    x_test: np.ndarray, removed_cols: np.ndarray = []
+    x: np.ndarray, idx_calc_columns: np.ndarray = [], idx_nan_percent: np.ndarray = [], fill_nans: str = None
 ) -> np.ndarray:
     """Build the test features.
 
@@ -200,9 +202,17 @@ def build_test_features(
         np.ndarray: the test features.
     """
 
-    cols = np.arange(x_test.shape[1])
-    cols = np.delete(cols, removed_cols)
-    x_test_standardized = x_test[:, cols]
-    x_test_standardized = replace_nan_mean(x=x_test_standardized)
-    x_test_standardized = standardize(data=x_test_standardized)
-    return x_test_standardized
+    x = np.delete(np.delete(x, idx_calc_columns, 1), idx_nan_percent, 1)
+
+    if fill_nans is not None:
+        if fill_nans == "mean":
+            x_filled = replace_nan_mean(x=x)
+        elif fill_nans == "most_freq":
+            x_filled = replace_nan_most_freq(x=x)
+        elif fill_nans == "random":
+            x_filled = replace_nan_random(x=x)
+        assert(np.sum(np.isnan(x_filled)) == 0), "There are still NaN values in the dataset."
+
+    x_standardized = standardize(data=x_filled)
+    return x_standardized
+
