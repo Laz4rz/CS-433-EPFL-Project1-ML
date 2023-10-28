@@ -42,6 +42,6 @@ def compute_f1_score(y: np.ndarray, y_pred: np.ndarray) -> float:
         float: f1 score.
     """
     true_positives = np.sum(np.logical_and(y == 1, y_pred == 1))
-    false_positives = np.sum(np.logical_and(y == 0, y_pred == 1))
-    false_negatives = np.sum(np.logical_and(y == 1, y_pred == 0))
+    false_positives = np.sum(np.logical_and(y == -1, y_pred == 1))
+    false_negatives = np.sum(np.logical_and(y == 1, y_pred == -1))
     return true_positives / (true_positives + (false_positives + false_negatives) / 2)

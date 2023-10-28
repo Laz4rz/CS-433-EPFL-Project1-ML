@@ -27,8 +27,14 @@ def drop_calculated_features(x: np.ndarray) -> np.ndarray:
     cols_name = first_line.split(",")
     cols_name = np.asarray(cols_name)
     cols_name = cols_name[1:]
-    rgx = "^_(?!DENSTR2$|GEOSTR$|STATE$)[A-Za-z_]\w*"
-    calculated_features_idx = np.where([re.match(rgx, col) for col in cols_name])[0]
+    # rgx = "^_(?!DENSTR2$|GEOSTR$|STATE$)[A-Za-z_]\w*"
+    # calculated_features_idx = np.where([re.match(rgx, col) for col in cols_name])[0]
+    startwith_ = np.array(list(map(lambda x: x.startswith("_"), cols_name)))
+    endwith_ = np.array(list(map(lambda x: x.endswith("_"), cols_name)))
+    to_drop = np.logical_or(startwith_, endwith_)
+    exclude = list(map(lambda x: x not in ["_DENSTR2", "_GEOSTR", "_STATE"], cols_name))
+    to_drop = np.logical_and(to_drop, exclude)
+    calculated_features_idx = np.where(to_drop)[0]
     new_data = np.delete(x, calculated_features_idx, axis=1)
     return new_data, calculated_features_idx
 
@@ -144,8 +150,8 @@ def balance_data(x: np.ndarray, y: np.ndarray, scale: int = 1) -> np.ndarray:
         np.ndarray: balanced labels.
     """
     y1_size = np.sum(y[y == 1])
-    y0_balaned_size = y1_size * scale
-    y0_idx = np.random.choice(np.arange(0, len(y))[(y == 0).squeeze()], y0_balaned_size)
+    y0_balanced_size = int(y1_size * scale)
+    y0_idx = np.random.choice(np.arange(0, len(y))[(y == -1).squeeze()], y0_balanced_size)
     balanced_idx = np.concatenate([y0_idx, np.arange(0, len(y))[(y == 1).squeeze()]])
     balanced_idx = np.sort(balanced_idx)
     y_balanced = y[balanced_idx]
