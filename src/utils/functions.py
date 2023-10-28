@@ -5,6 +5,7 @@ functions.py: File containing utility functions.
 """
 
 import os
+import random
 import numpy as np
 import helpers as hp
 import src.utils.constants as c
@@ -12,6 +13,18 @@ import src.model.Models as model
 import src.model.predict_model as predict_model
 import src.features.build_features as bf
 
+def set_random_seed(seed: int = 42) -> None:
+    """Set the random seed.
+
+    Args:
+        seed (int): random seed.
+    """
+    seed = int(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    print(f"Random seed set to {seed}")
+    
 
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     """
