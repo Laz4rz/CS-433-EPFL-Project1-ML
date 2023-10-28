@@ -39,6 +39,23 @@ def drop_calculated_features(x: np.ndarray) -> np.ndarray:
     return new_data, calculated_features_idx
 
 
+def build_poly(x, degree):
+    """polynomial basis functions for input data x, for j=0 up to j=degree.
+
+    Args:
+        x: numpy array of shape (N,), N is the number of samples.
+        degree: integer.
+
+    Returns:
+        poly: numpy array of shape (N,d+1)
+    """
+
+    poly = np.ones((len(x), 1))
+    for deg in range(1, degree + 1):
+        poly = np.c_[poly, np.power(x, deg)]
+    return poly
+
+
 def standardize(data: np.ndarray) -> np.ndarray:
     """Standardize the dataset.
 
