@@ -212,13 +212,13 @@ def build_test_features(
 
     if fill_nans is not None:
         if fill_nans == "mean":
-            x_filled = replace_nan_mean(x=x)
+            x = replace_nan_mean(x=x)
         elif fill_nans == "most_freq":
-            x_filled = replace_nan_most_freq(x=x)
+            x = replace_nan_most_freq(x=x)
         elif fill_nans == "random":
-            x_filled = replace_nan_random(x=x)
-        assert(np.sum(np.isnan(x_filled)) == 0), "There are still NaN values in the dataset."
+            x = replace_nan_random(x=x)
+        assert(np.sum(np.isnan(x)) == 0), "There are still NaN values in the dataset."
 
-    x_standardized = standardize(data=x_filled)
+    x_standardized = standardize(data=x)
     return x_standardized
 
