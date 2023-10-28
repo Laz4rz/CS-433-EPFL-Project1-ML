@@ -20,6 +20,7 @@ def drop_calculated_features(x: np.ndarray) -> np.ndarray:
 
     Returns:
         np.ndarray: dataset without calculated features.
+        np.ndarray: indexes of the calculated features.
     """
     with open(os.path.join("./data", "x_train.csv")) as f:
         first_line = f.readline().strip("\n")
@@ -29,7 +30,7 @@ def drop_calculated_features(x: np.ndarray) -> np.ndarray:
     rgx = "^_(?!DENSTR2$|GEOSTR$|STATE$)[A-Za-z_]\w*"
     calculated_features_idx = np.where([re.match(rgx, col) for col in cols_name])[0]
     new_data = np.delete(x, calculated_features_idx, axis=1)
-    return new_data
+    return new_data, calculated_features_idx
 
 
 def standardize(data: np.ndarray) -> np.ndarray:
@@ -128,10 +129,11 @@ def build_train_features(
         fill_nans (str, optional): Method to fill nan values. Defaults to None. 
     Returns:
         np.ndarray: the train features.
+        np.ndarray: indexes of the calculated features.
         np.ndarray: indexes of the columns with more than percentage NaN values.
     """
-    x_train_standardized = drop_calculated_features(x=x)
-    x_train_standardized, removed_cols = less_than_percent_nans(
+    x_train_standardized, calculated_cols_idxs = drop_calculated_features(x=x)
+    x_train_standardized, more_than_nan_idxs  = less_than_percent_nans(
         x=x_train_standardized, percentage=percentage
     )
 
@@ -143,7 +145,7 @@ def build_train_features(
         assert(np.sum(np.isnan(x_train_standardized)) == 0)
 
     x_train_standardized = standardize(data=x_train_standardized)
-    return x_train_standardized, removed_cols
+    return x_train_standardized, calculated_cols_idxs, more_than_nan_idxs
 
 
 def build_test_features(
