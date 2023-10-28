@@ -3,7 +3,6 @@
 """
 functions.py: File containing utility functions.
 """
-
 import os
 import random
 import numpy as np
@@ -65,31 +64,39 @@ def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
 
 
 def create_submission(
-    x_test: np.ndarray,
+    x: np.ndarray,
+    ids: np.ndarray,
     w: np.ndarray,
     model: model.Models,
-    removed_cols: np.ndarray = [],
+    idx_calc_columns: np.ndarray = [],
+    idx_nan_percent: np.ndarray = [],
+    fill_nans: str = None,
     filename: str = "sub.csv",
 ) -> None:
     """Creates the submission file for the specified model type.
 
     Args:
-        x_test (np.ndarray): test data (to be standardized).
+        x (np.ndarray): test data (to be standardized).
+        ids (np.ndarray): indexes of the data.
         w (np.ndarray): weights.
-        removed_cols (np.ndarray): indexes of the columns removed from the training data.
+        idx_calc_columns (np.ndarray): indexes of the calculated columns.
+        idx_nan_percent (np.ndarray): indexes of the columns with more than percentage NaN values.
+        fill_nans (str): method to fill NaN values.
         function (callable): function used to compute the predictions.
         file_name (str): file name.
     """
 
     x_test_standardized = bf.build_test_features(
-        x_test=x_test, removed_cols=removed_cols
+        x=x,
+        idx_calc_columns=idx_calc_columns,
+        idx_nan_percent=idx_nan_percent,
+        fill_nans=fill_nans,
     )
     pred = predict_model.model_functions[model.name](
         x_test=x_test_standardized,
         w=w,
     )
-    test_ids = np.arange(pred.shape[0]) + 1
     os.makedirs(c.MODELS_PATH, exist_ok=True)
     hp.create_csv_submission(
-        ids=test_ids, y_pred=pred, name=os.path.join(c.MODELS_PATH, filename)
+        ids=ids, y_pred=pred, name=os.path.join(c.MODELS_PATH, filename)
     )
