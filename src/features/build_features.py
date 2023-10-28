@@ -134,10 +134,14 @@ def build_train_features(
     x_train_standardized, removed_cols = less_than_percent_nans(
         x=x_train_standardized, percentage=percentage
     )
-    if fill_nans == "mean":
-        x_train_standardized = replace_nan_mean(x=x_train_standardized)
-    elif fill_nans == "most_freq":
-        x_train_standardized = replace_nan_most_freq(x=x_train_standardized)
+
+    if fill_nans is not None:
+        if fill_nans == "mean":
+            x_train_standardized = replace_nan_mean(x=x_train_standardized)
+        elif fill_nans == "most_freq":
+            x_train_standardized = replace_nan_most_freq(x=x_train_standardized)
+        assert(np.isnan(x_train_standardized) == 0)
+        
     x_train_standardized = standardize(data=x_train_standardized)
     return x_train_standardized, removed_cols
 

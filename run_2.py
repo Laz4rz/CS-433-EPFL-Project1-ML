@@ -15,7 +15,7 @@ y_train = y_train.reshape((y_train.shape[0], 1))
 print(x_train.shape)
 print("Building features...")
 x_train_nonans, removed_cols = bf.build_train_features(
-    x=x_train, percentage=c.PERCENTAGE_NAN
+    x=x_train, percentage=c.PERCENTAGE_NAN, fill_nans="mean"
 )
 print(x_train_nonans.shape)
 
