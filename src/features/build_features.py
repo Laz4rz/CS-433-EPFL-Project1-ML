@@ -159,7 +159,7 @@ def balance_data(x: np.ndarray, y: np.ndarray, scale: int = 1) -> np.ndarray:
     return x_balanced, y_balanced
 
 def build_train_features(
-    x: np.ndarray, y: np.ndarray, percentage: int = c.PERCENTAGE_NAN, fill_nans: str = None, balance: bool = False, balance_scale: int = 1
+    x: np.ndarray, y: np.ndarray, percentage: int = c.PERCENTAGE_NAN, fill_nans: str = None, balance: bool = False, balance_scale: int = 1, drop_calculated: bool = True
 ) -> np.ndarray:
     """Build the train features.
 
@@ -168,12 +168,17 @@ def build_train_features(
         percentage (float, optional): Threshold of NaN values in columns to be removed. Defaults to 90.
         fill_nans (str, optional): Method to fill nan values. Defaults to None. 
         balance (bool, optional): Whether to balance the dataset or not. Defaults to False.
+        balance_scale (int, optional): Scale of the balancing. Defaults to 1.
+        drop_calculated (bool, optional): Whether to drop calculated features or not. Defaults to True.
     Returns:
         np.ndarray: the train features.
         np.ndarray: indexes of the calculated features.
         np.ndarray: indexes of the columns with more than percentage NaN values.
     """
-    x_train_standardized, calculated_cols_idxs = drop_calculated_features(x=x)
+    x_train_standardized = x.copy()
+    calculated_cols_idxs = []
+    if drop_calculated:
+        x_train_standardized, calculated_cols_idxs = drop_calculated_features(x=x)
     x_train_standardized, more_than_nan_idxs  = less_than_percent_nans(
         x=x_train_standardized, percentage=percentage
     )
