@@ -97,7 +97,7 @@ def get_most_freq_value(x: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: the most frequent value.
     """
-    values, counts = np.unique(x, return_counts=True)
+    values, counts = np.unique(x[~np.isnan(x)], return_counts=True)
     return values[np.argmax(counts)]
 
 
