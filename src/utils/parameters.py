@@ -11,7 +11,7 @@ import numpy as np
 class Parameters:
     seed: int = 42
     lambda_: float = 0.1
-    iters: iters = 10
+    iters: int = 10
     gamma: float = 0.01
     threshold = 1e-8
     batch_size: int = 32

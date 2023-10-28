@@ -25,7 +25,7 @@ def set_random_seed(seed: int = 42) -> None:
     os.environ["PYTHONHASHSEED"] = str(seed)
     print(f"Random seed set to {seed}")
 
-def initialize_weights(x: np.ndarray) -> np.ndarray:
+def initialize_weights(x: np.ndarray, how: str = None) -> np.ndarray:
     """Initialize the weights.
 
     Args:
@@ -34,7 +34,12 @@ def initialize_weights(x: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: weights.
     """
-    return np.zeros((x.shape[1], 1))
+    if how == "zeros":
+        return np.zeros((x.shape[1], 1))
+    elif how == "ones":
+        return np.ones((x.shape[1], 1))
+    elif how == "random":
+        return np.random.random((x.shape[1], 1)) * 10
 
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     """
