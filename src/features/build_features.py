@@ -9,6 +9,8 @@ import os as os
 import numpy as np
 import src.utils.constants as c
 
+from typing import Tuple
+
 
 def drop_calculated_features(x: np.ndarray) -> np.ndarray:
     """Drop calculated features.
@@ -200,7 +202,7 @@ def balance_data(x: np.ndarray, y: np.ndarray, scale: int = 1) -> np.ndarray:
 
 def build_train_features(
     x: np.ndarray, y: np.ndarray, percentage: int = c.PERCENTAGE_NAN, fill_nans: str = None, balance: bool = False, balance_scale: int = 1, drop_calculated: bool = True, polynomial_expansion_degree: int = 1
-) -> np.ndarray:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Build the train features.
 
     Args:
@@ -212,6 +214,7 @@ def build_train_features(
         drop_calculated (bool, optional): Whether to drop calculated features or not. Defaults to True.
     Returns:
         np.ndarray: the train features.
+        np.ndarray: the train labels.
         np.ndarray: indexes of the calculated features.
         np.ndarray: indexes of the columns with more than percentage NaN values.
     """
