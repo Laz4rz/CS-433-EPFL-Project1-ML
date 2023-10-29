@@ -44,13 +44,13 @@ def sigmoid(t):
         scalar or numpy array
     """
 
-    def sig_elem(z):
-        if z <= 0:
-            return np.exp(z) / (np.exp(z) + 1)
-        else:
-            return 1 / (1 + np.exp(-z))
+    # def sig_elem(z):
+    #     if z <= 0:
+    #         return np.exp(z) / (np.exp(z) + 1)
+    #     else:
+    #         return 1 / (1 + np.exp(-z))
 
-    return np.vectorize(sig_elem)(t)
+    return 1.0 / (1 + np.exp(-t))
 
 
 def compute_loss_logistic(y, tx, w):
@@ -68,12 +68,13 @@ def compute_loss_logistic(y, tx, w):
     assert y.shape[0] == tx.shape[0]
     assert tx.shape[1] == w.shape[0]
 
-    # loss = np.sum(np.logaddexp(0, tx.dot(w))) - y.T.dot(tx.dot(w))
-    # return np.squeeze(loss) * (1 / y.shape[0])
+    y = y.reshape((-1, 1))
+    loss = np.sum(np.logaddexp(0, tx.dot(w))) - y.T.dot(tx.dot(w))
+    return np.squeeze(loss) * (1 / y.shape[0])
     
-    pred = sigmoid(tx.dot(w))
-    loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
-    return np.squeeze(-loss) * (1 / y.shape[0])
+    #pred = sigmoid(tx.dot(w))
+    #loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
+    #return np.squeeze(-loss) * (1 / y.shape[0])
 
 
 def compute_gradient_logistic(y, tx, w):
@@ -109,7 +110,9 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
     w = initial_w
     loss = compute_loss(y, tx, w)
 
-    for _ in range(max_iters):
+    for i in range(max_iters):
+        if i % 250 == 0:
+            print(f"Current iteration={i}, loss={loss}")
         g = compute_gradient(y, tx, w)
         # update w by gradient
         w = w - gamma * g
@@ -208,9 +211,13 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
         loss: corresponding loss
     """
     w = initial_w
+    y = np.where(y == -1, 0, y)
+
     loss = compute_loss_logistic(y, tx, w)
 
-    for _ in range(max_iters):
+    for i in range(max_iters):
+        if i % 250 == 0:
+            print(f"Current iteration={i}, loss={loss}")
         gradient = compute_gradient_logistic(y, tx, w)
         w = w - gamma * gradient
         loss = compute_loss_logistic(y, tx, w)
@@ -235,7 +242,9 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     w = initial_w
     loss = compute_loss_logistic(y, tx, w)
 
-    for _ in range(max_iters):
+    for i in range(max_iters):
+        if i % 250 == 0:
+            print(f"Current iteration={i}, loss={loss}")
         gradient = compute_gradient_logistic(y, tx, w) + 2 * lambda_ * w
         w = w - gamma * gradient
         loss = compute_loss_logistic(y, tx, w)

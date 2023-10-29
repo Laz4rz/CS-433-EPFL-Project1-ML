@@ -38,7 +38,7 @@ def initialize_weights(x: np.ndarray, how: str = None) -> np.ndarray:
     elif how == "ones":
         return np.ones((x.shape[1], 1))
     elif how == "random":
-        return np.random.random((x.shape[1], 1)) * 10
+        return np.random.random((x.shape[1], 1))
 
 def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
     """
@@ -72,6 +72,7 @@ def create_submission(
     idx_nan_percent: np.ndarray = [],
     fill_nans: str = None,
     filename: str = "sub.csv",
+    degree: int = 1,
 ) -> None:
     """Creates the submission file for the specified model type.
 
@@ -91,6 +92,7 @@ def create_submission(
         idx_calc_columns=idx_calc_columns,
         idx_nan_percent=idx_nan_percent,
         fill_nans=fill_nans,
+        polynomial_expansion_degree=degree
     )
     pred = predict_model.model_functions[model.name](
         x_test=x_test_standardized,
