@@ -4,7 +4,7 @@
 
 Group:
 - Lorenzo Drudi - 367980
-- Mikolaj Boronski -
+- Mikolaj Boronski - 376967
 - Olena Zavertiaieva - 364500
 
 > The `run.py` file contains the code for the best model we obtained.
