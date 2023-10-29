@@ -22,15 +22,20 @@ from src.utils.parameters import Parameters
 def build_all(x_train: np.ndarray, y_train: np.ndarray, parameters: Parameters):
     print(f"Building features for {parameters}")
     print(f"Size before build {x_train.shape}")
-    x_train_nonans_balanced, y_train_balanced, idx_calc_columns, idx_nan_percent = bf.build_train_features(
-        x=x_train, 
+    (
+        x_train_nonans_balanced,
+        y_train_balanced,
+        idx_calc_columns,
+        idx_nan_percent,
+    ) = bf.build_train_features(
+        x=x_train,
         y=y_train,
         percentage=parameters.percentage,
         fill_nans=parameters.fill_nans,
         balance=parameters.balance,
         balance_scale=parameters.balance_scale,
         drop_calculated=parameters.drop_calculated,
-        polynomial_expansion_degree=parameters.degree
+        polynomial_expansion_degree=parameters.degree,
     )
     print(f"Size after build {x_train_nonans_balanced.shape}")
 
@@ -38,12 +43,20 @@ def build_all(x_train: np.ndarray, y_train: np.ndarray, parameters: Parameters):
         x=x_train,
         idx_calc_columns=idx_calc_columns,
         idx_nan_percent=idx_nan_percent,
-        fill_nans=parameters.fill_nans, 
-        polynomial_expansion_degree=parameters.degree)
+        fill_nans=parameters.fill_nans,
+        polynomial_expansion_degree=parameters.degree,
+    )
 
     initial_w = f.initialize_weights(x_train_nonans_balanced, how=parameters.how_init)
 
-    return x_train_nonans_balanced, y_train_balanced, idx_calc_columns, idx_nan_percent, x_train_full, initial_w
+    return (
+        x_train_nonans_balanced,
+        y_train_balanced,
+        idx_calc_columns,
+        idx_nan_percent,
+        x_train_full,
+        initial_w,
+    )
 
 
 print("Loading data...")
@@ -62,7 +75,16 @@ balance_scales = [1, 2]
 drop_calculateds = [True, False]
 balances = [True]
 
-combinations = itertools.product(gammas, degrees, how_inits, fill_nans, percentages, balance_scales, drop_calculateds, balances)
+combinations = itertools.product(
+    gammas,
+    degrees,
+    how_inits,
+    fill_nans,
+    percentages,
+    balance_scales,
+    drop_calculateds,
+    balances,
+)
 
 results = {}
 
@@ -78,42 +100,55 @@ for combination in tqdm(combinations):
         drop_calculated=combination[6],
         percentage=combination[4],
         fill_nans=combination[3],
-        how_init=combination[2]
+        how_init=combination[2],
     )
 
     f.set_random_seed(parameters.seed)
 
     x_train_balanced, y_train_balanced, _, _, x_train_full, initial_w = build_all(
-        x_train=x_train,
-        y_train=y_train,
-        parameters=parameters
+        x_train=x_train, y_train=y_train, parameters=parameters
     )
     print(f"log reg for {parameters}")
-    w, loss = impl.logistic_regression(y_train_balanced, x_train_balanced, initial_w, parameters.iters, parameters.gamma)
+    w, loss = impl.logistic_regression(
+        y_train_balanced,
+        x_train_balanced,
+        initial_w,
+        parameters.iters,
+        parameters.gamma,
+    )
 
     print("\nBalanced training set:")
-    f1_training = ev.compute_f1_score(y_train_balanced, pred.compute_predictions_logistic(x_train_balanced, w))
-    acc_training = ev.compute_accuracy(y_train_balanced, pred.compute_predictions_logistic(x_train_balanced, w))
+    f1_training = ev.compute_f1_score(
+        y_train_balanced, pred.compute_predictions_logistic(x_train_balanced, w)
+    )
+    acc_training = ev.compute_accuracy(
+        y_train_balanced, pred.compute_predictions_logistic(x_train_balanced, w)
+    )
     print(f"F1 score on training set: {f1_training}")
     print(f"Accuracy on training set: {acc_training}")
-    
+
     print("\nFull training set:")
-    f1_full = ev.compute_f1_score(y_train, pred.compute_predictions_logistic(x_train_full, w))
-    acc_full = ev.compute_accuracy(y_train, pred.compute_predictions_logistic(x_train_full, w))
+    f1_full = ev.compute_f1_score(
+        y_train, pred.compute_predictions_logistic(x_train_full, w)
+    )
+    acc_full = ev.compute_accuracy(
+        y_train, pred.compute_predictions_logistic(x_train_full, w)
+    )
     print(f"F1 score on training set: {f1_full}")
     print(f"Accuracy on training set: {acc_full}")
-    
+
     print(f"\n Loss on training set: {loss}")
 
-    print("="*50)
+    print("=" * 50)
 
     results[str(parameters)] = {
         "f1_training": f1_training,
         "acc_training": acc_training,
         "f1_full": f1_full,
         "acc_full": acc_full,
-        "loss": loss
+        "loss": loss,
     }
+
 
 def get_best_f1_full_from_results(results: dict) -> float:
     best_f1_full = 0
@@ -123,6 +158,7 @@ def get_best_f1_full_from_results(results: dict) -> float:
             best_f1_full = result["f1_full"]
             best_parameters = parameters
     return best_f1_full, best_parameters
+
 
 # utilsf.create_submission(
 #     x=x_test,

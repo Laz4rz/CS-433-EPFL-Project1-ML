@@ -1,3 +1,15 @@
+#!/usr/bin/env python
+# encoding: utf-8
+"""
+implementations.py: File containing the implementations of the following ML algorithms:
+    - Gradient descent
+    - Stochastic gradient descent
+    - Least squares
+    - Ridge regression
+    - Logistic regression
+    - Regularized logistic regression 
+"""
+
 import numpy as np
 import src.utils.functions as utils
 
@@ -71,10 +83,10 @@ def compute_loss_logistic(y, tx, w):
     y = y.reshape((-1, 1))
     loss = np.sum(np.logaddexp(0, tx.dot(w))) - y.T.dot(tx.dot(w))
     return np.squeeze(loss) * (1 / y.shape[0])
-    
-    #pred = sigmoid(tx.dot(w))
-    #loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
-    #return np.squeeze(-loss) * (1 / y.shape[0])
+
+    # pred = sigmoid(tx.dot(w))
+    # loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
+    # return np.squeeze(-loss) * (1 / y.shape[0])
 
 
 def compute_gradient_logistic(y, tx, w):

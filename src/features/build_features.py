@@ -4,7 +4,6 @@
 build_data.py: File containing the code used for data preprocessing.
 """
 
-import re as re
 import os as os
 import numpy as np
 import src.utils.constants as c
@@ -12,9 +11,9 @@ import src.utils.constants as c
 from typing import Tuple
 
 
-def drop_calculated_features(x: np.ndarray) -> np.ndarray:
-    """Drop calculated features.
-       These features are the ones that start with an underscore
+def drop_calculated_features(x: np.ndarray) -> [np.ndarray, np.ndarray]:
+    """Drop calculated features (and intermediately calculated features).
+       These features are the ones that start or ends with an underscore.
        (Exceptions:  _DENSTR2, _GEOSTR, and _STATE).
 
     Args:
@@ -29,8 +28,6 @@ def drop_calculated_features(x: np.ndarray) -> np.ndarray:
     cols_name = first_line.split(",")
     cols_name = np.asarray(cols_name)
     cols_name = cols_name[1:]
-    # rgx = "^_(?!DENSTR2$|GEOSTR$|STATE$)[A-Za-z_]\w*"
-    # calculated_features_idx = np.where([re.match(rgx, col) for col in cols_name])[0]
     startwith_ = np.array(list(map(lambda x: x.startswith("_"), cols_name)))
     endwith_ = np.array(list(map(lambda x: x.endswith("_"), cols_name)))
     to_drop = np.logical_or(startwith_, endwith_)
@@ -41,17 +38,16 @@ def drop_calculated_features(x: np.ndarray) -> np.ndarray:
     return new_data, calculated_features_idx
 
 
-def build_poly(x, degree):
-    """polynomial basis functions for input data x, for j=0 up to j=degree.
+def build_poly(x: np.ndarray, degree: int = 1) -> np.ndarray:
+    """Polynomial basis functions for input data x, for j=0 up to j=degree.
 
     Args:
-        x: numpy array of shape (N,), N is the number of samples.
-        degree: integer.
+        x (np.ndarray, (N,)): array of shape, N is the number of samples.
+        degree (int, optional): degree of the polynomial. Defaults to 1.
 
     Returns:
-        poly: numpy array of shape (N,d+1)
+        poly (np.ndarray, (N,d+1)): the computed polynomial features.
     """
-
     poly = np.ones((len(x), 1))
     for deg in range(1, degree + 1):
         poly = np.c_[poly, np.power(x, deg)]
@@ -66,8 +62,6 @@ def standardize(data: np.ndarray) -> np.ndarray:
     Returns:
         new_data: the standardized dataset.
     """
-
-    # new_data = np.c_[np.ones((data.shape[0], 1)), data]
     new_data = data.copy()
 
     mean = np.mean(new_data, axis=0)
@@ -84,7 +78,6 @@ def replace_nan_mean(x: np.ndarray) -> np.ndarray:
     Returns:
         np.ndarray: dataset with NaN values replaced with the mean of the column.
     """
-
     x = x.copy()
     for col in range(x.shape[1]):
         mean = np.nanmean(x[:, col])
@@ -94,46 +87,45 @@ def replace_nan_mean(x: np.ndarray) -> np.ndarray:
 
 def less_than_percent_nans_columns(
     x: np.ndarray, percentage: int = c.PERCENTAGE_NAN
-) -> np.ndarray:
+) -> [np.ndarray, np.ndarray]:
     """Remove columns with more than percentage NaN values.
 
     Args:
         x (np.ndarray): dataset.
-        percentage (int): percentage of NaN values.
+        percentage (int, optional): percentage of NaN values. Defaults to 90.
 
     Returns:
         np.ndarray: dataset with columns with more than percentage NaN values removed.
         np.ndarray: indexes of the columns with more than percentage NaN values.
     """
-
     x = x.copy()
     idx_to_drop = []
     for col in range(x.shape[1]):
         nan_percentage_row = np.isnan(x[:, col]).sum() / len(x[:, col]) * 100
-        if nan_percentage_row > percentage: idx_to_drop.append(col)
+        if nan_percentage_row > percentage:
+            idx_to_drop.append(col)
     return np.delete(x, idx_to_drop, 1), idx_to_drop
-
 
 
 def less_than_percent_nans_rows(
     x: np.ndarray, percentage: int = c.PERCENTAGE_NAN
 ) -> np.ndarray:
-    """Remove columns with more than percentage NaN values.
+    """Remove rows with more than percentage NaN values.
 
     Args:
         x (np.ndarray): dataset.
-        percentage (int): percentage of NaN values.
+        percentage (int, optional): percentage of NaN values. Defaults to 90.
 
     Returns:
-        np.ndarray: dataset with columns with more than percentage NaN values removed.
-        np.ndarray: indexes of the columns with more than percentage NaN values.
+        np.ndarray: dataset with rows with more than percentage NaN values removed.
+        np.ndarray: indexes of the rows with more than percentage NaN values.
     """
-
     x = x.copy()
     idx_to_drop = []
     for row in range(x.shape[0]):
         nan_percentage_row = np.isnan(x[row, :]).sum() / len(x[row, :]) * 100
-        if nan_percentage_row > percentage: idx_to_drop.append(row)
+        if nan_percentage_row > percentage:
+            idx_to_drop.append(row)
     return np.delete(x, idx_to_drop, 0), idx_to_drop
 
 
@@ -170,6 +162,7 @@ def replace_nan_most_freq(x: np.ndarray) -> np.ndarray:
         x[np.isnan(x[:, col]), col] = most_freq_val
     return x
 
+
 def replace_nan_random(x: np.ndarray) -> np.ndarray:
     """Replace NaN values with a random value of the column.
 
@@ -181,16 +174,21 @@ def replace_nan_random(x: np.ndarray) -> np.ndarray:
     """
     x = x.copy()
     for col in range(x.shape[1]):
-        # rand = np.random.choice(x_train[~np.isnan(x_train[:, 100]), 100], np.isnan(x_train[:, 100]).sum())
-        x[np.isnan(x[:, col]), col] = np.random.uniform(np.nanmin(x[:, col]), np.nanmax(x[:, col]), np.isnan(x[:, col]).sum())
+        x[np.isnan(x[:, col]), col] = np.random.uniform(
+            np.nanmin(x[:, col]), np.nanmax(x[:, col]), np.isnan(x[:, col]).sum()
+        )
     return x
 
-def balance_data(x: np.ndarray, y: np.ndarray, scale: int = 1) -> np.ndarray:
-    """Balance the dataset.
+
+def balance_data(
+    x: np.ndarray, y: np.ndarray, scale: int = 1
+) -> [np.ndarray, np.ndarray]:
+    """Balance the dataset, i.e. balance the number of samples of each class using the scale factor.
 
     Args:
         x (np.ndarray): dataset.
         y (np.ndarray): labels.
+        scale (int, optional): Scale of the balancing. Defaults to 1.
 
     Returns:
         np.ndarray: balanced dataset.
@@ -198,12 +196,15 @@ def balance_data(x: np.ndarray, y: np.ndarray, scale: int = 1) -> np.ndarray:
     """
     y1_size = np.sum(y[y == 1])
     y0_balanced_size = int(y1_size * scale)
-    y0_idx = np.random.choice(np.arange(0, len(y))[(y == -1).squeeze()], y0_balanced_size)
+    y0_idx = np.random.choice(
+        np.arange(0, len(y))[(y == -1).squeeze()], y0_balanced_size
+    )
     balanced_idx = np.concatenate([y0_idx, np.arange(0, len(y))[(y == 1).squeeze()]])
     balanced_idx = np.sort(balanced_idx)
     y_balanced = y[balanced_idx]
     x_balanced = x[balanced_idx]
     return x_balanced, y_balanced
+
 
 def build_train_features(
     x: np.ndarray, y: np.ndarray, percentage: int = c.PERCENTAGE_NAN, fill_nans: str = None, balance: bool = False, balance_scale: int = 1, drop_calculated: bool = True, polynomial_expansion_degree: int = 1, drop_outliers: int = None
@@ -212,11 +213,13 @@ def build_train_features(
 
     Args:
         x (np.ndarray): dataset.
+        y (np.ndarray): labels.
         percentage (float, optional): Threshold of NaN values in columns to be removed. Defaults to 90.
-        fill_nans (str, optional): Method to fill nan values. Defaults to None. 
+        fill_nans (str, optional): Method to fill nan values. Defaults to None.
         balance (bool, optional): Whether to balance the dataset or not. Defaults to False.
         balance_scale (int, optional): Scale of the balancing. Defaults to 1.
         drop_calculated (bool, optional): Whether to drop calculated features or not. Defaults to True.
+        polynomial_expansion_degree (int, optional): Degree of the polynomial expansion. Defaults to 1.
     Returns:
         np.ndarray: the train features.
         np.ndarray: the train labels.
@@ -235,7 +238,7 @@ def build_train_features(
     )
 
     y = np.delete(y, more_than_nan_idxs_rows, 0)
-    
+
     if fill_nans is not None:
         if fill_nans == "mean":
             x_train_standardized = replace_nan_mean(x=x_train_standardized)
@@ -243,13 +246,9 @@ def build_train_features(
             x_train_standardized = replace_nan_most_freq(x=x_train_standardized)
         elif fill_nans == "random":
             x_train_standardized = replace_nan_random(x=x_train_standardized)
-        assert(np.sum(np.isnan(x_train_standardized)) == 0), "There are still NaN values in the dataset."
-
-    if drop_outliers is not None:
-        x_train_standardized, outliers_mask = remove_outliers(x=x_train_standardized, threshold=drop_outliers)
-        y = np.delete(y, outliers_mask, 0)
-        assert(x_train_standardized.shape[0] == y.shape[0]), "The number of samples and labels is not the same."
-        assert(np.sum(np.isnan(x_train_standardized)) == 0), "There are still NaN values in the dataset."
+        assert (
+            np.sum(np.isnan(x_train_standardized)) == 0
+        ), "There are still NaN values in the dataset."
 
     if balance:
         x_train_standardized, y = balance_data(x=x_train_standardized, y=y, scale=balance_scale)
@@ -264,18 +263,23 @@ def build_train_features(
 
 
 def build_test_features(
-    x: np.ndarray, idx_calc_columns: np.ndarray = [], idx_nan_percent: np.ndarray = [], fill_nans: str = None, polynomial_expansion_degree: int = 1
+    x: np.ndarray,
+    idx_calc_columns: np.ndarray = [],
+    idx_nan_percent: np.ndarray = [],
+    fill_nans: str = None,
+    polynomial_expansion_degree: int = 1,
 ) -> np.ndarray:
     """Build the test features.
 
     Args:
         x_test (np.ndarray):. test data
-        removed_cols (np.ndarray): columns to be removed.
-
+        idx_calc_columns (np.ndarray, optional): indexes of the calculated features.
+        idx_nan_percent (np.ndarray, optional): indexes of the columns with more than percentage NaN values.
+        fill_nans (str, optional): Method to fill nan values. Defaults to None.
+        polynomial_expansion_degree (int, optional): Degree of the polynomial expansion. Defaults to 1.
     Returns:
         np.ndarray: the test features.
     """
-
     x = np.delete(np.delete(x, idx_calc_columns, 1), idx_nan_percent, 1)
 
     if fill_nans is not None:
@@ -285,10 +289,8 @@ def build_test_features(
             x = replace_nan_most_freq(x=x)
         elif fill_nans == "random":
             x = replace_nan_random(x=x)
-        assert(np.sum(np.isnan(x)) == 0), "There are still NaN values in the dataset."
+        assert np.sum(np.isnan(x)) == 0, "There are still NaN values in the dataset."
 
     x = build_poly(x, degree=polynomial_expansion_degree)
 
-    x_standardized = standardize(data=x)
-    return x_standardized
-
+    return standardize(data=x)

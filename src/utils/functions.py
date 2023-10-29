@@ -3,6 +3,7 @@
 """
 functions.py: File containing utility functions.
 """
+
 import os
 import random
 import numpy as np
@@ -12,11 +13,12 @@ import src.model.Models as model
 import src.model.predict_model as predict_model
 import src.features.build_features as bf
 
+
 def set_random_seed(seed: int = 42) -> None:
     """Set the random seed.
 
     Args:
-        seed (int): random seed.
+        seed (int, optional): random seed.
     """
     seed = int(seed)
     np.random.seed(seed)
@@ -24,11 +26,13 @@ def set_random_seed(seed: int = 42) -> None:
     os.environ["PYTHONHASHSEED"] = str(seed)
     print(f"Random seed set to {seed}")
 
+
 def initialize_weights(x: np.ndarray, how: str = None) -> np.ndarray:
     """Initialize the weights.
 
     Args:
         x (np.ndarray): dataset.
+        how (str, optional): how to initialize the weights. Defaults to None.
 
     Returns:
         np.ndarray: weights.
@@ -40,12 +44,26 @@ def initialize_weights(x: np.ndarray, how: str = None) -> np.ndarray:
     elif how == "random":
         return np.random.random((x.shape[1], 1))
 
-def batch_iter(y, tx, batch_size, num_batches=1, shuffle=True):
+
+def batch_iter(
+    y: np.ndarray,
+    tx: np.ndarray,
+    batch_size: int = 1,
+    num_batches: int = 1,
+    shuffle: bool = True,
+):
     """
     Generate a minibatch iterator for a dataset.
     Takes as input two iterables (here the output desired values 'y' and the input data 'tx')
     Outputs an iterator which gives mini-batches of `batch_size` matching elements from `y` and `tx`.
     Data can be randomly shuffled to avoid ordering in the original data messing with the randomness of the minibatches.
+
+    Args:
+        y (np.ndarray): labels.
+        tx (np.ndarray): data.
+        batch_size (int, optional): size of the batch. Defaults to 1.
+        num_batches (int, optional): number of batches. Defaults to 1.
+        shuffle (bool, optional): whether to shuffle or not. Defaults to True.
     """
     data_size = len(y)
 
@@ -80,19 +98,18 @@ def create_submission(
         x (np.ndarray): test data (to be standardized).
         ids (np.ndarray): indexes of the data.
         w (np.ndarray): weights.
-        idx_calc_columns (np.ndarray): indexes of the calculated columns.
-        idx_nan_percent (np.ndarray): indexes of the columns with more than percentage NaN values.
-        fill_nans (str): method to fill NaN values.
-        function (callable): function used to compute the predictions.
-        file_name (str): file name.
+        idx_calc_columns (np.ndarray, optional): indexes of the calculated columns. Defaults to [].
+        idx_nan_percent (np.ndarray, optional): indexes of the columns with more than percentage NaN values. Defaults to [].
+        fill_nans (str, optional): method to fill NaN values. Defaults to None.
+        file_name (str, optional): file name. Defaults to "sub.csv".
+        degree (int, optional): degree of the polynomial expansion. Defaults to 1.
     """
-
     x_test_standardized = bf.build_test_features(
         x=x,
         idx_calc_columns=idx_calc_columns,
         idx_nan_percent=idx_nan_percent,
         fill_nans=fill_nans,
-        polynomial_expansion_degree=degree
+        polynomial_expansion_degree=degree,
     )
     pred = predict_model.model_functions[model.name](
         x_test=x_test_standardized,
