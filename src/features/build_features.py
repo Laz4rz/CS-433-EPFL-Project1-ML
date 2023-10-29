@@ -68,12 +68,10 @@ def standardize(data: np.ndarray) -> np.ndarray:
     # new_data = np.c_[np.ones((data.shape[0], 1)), data]
     new_data = data.copy()
 
-    mean_x = np.mean(new_data)
-    new_data = new_data - mean_x
-    std_x = np.std(new_data)
-    new_data = new_data / std_x
-
-    return new_data
+    mean = np.mean(new_data, axis=0)
+    std = np.std(new_data, axis=0)
+    std = np.where(std == 0, 1, std)
+    return (new_data - mean) / std
 
 
 def replace_nan_mean(x: np.ndarray) -> np.ndarray:
@@ -225,7 +223,7 @@ def build_train_features(
         x=x_train_standardized, percentage=percentage
     )
     x_train_standardized, more_than_nan_idxs_rows = less_than_percent_nans_rows(
-        x=x_train_standardized, percentage=20
+        x=x_train_standardized, percentage=50
     )
 
     y = np.delete(y, more_than_nan_idxs_rows, 0)
@@ -242,10 +240,12 @@ def build_train_features(
     if balance:
         x_train_standardized, y = balance_data(x=x_train_standardized, y=y, scale=balance_scale)
         assert(x_train_standardized.shape[0] == y.shape[0]), "The number of samples and labels is not the same."
-    
+        assert(np.sum(np.isnan(x_train_standardized)) == 0), "There are still NaN values in the dataset."
+
     x_train_standardized = build_poly(x_train_standardized, degree=polynomial_expansion_degree)
 
     x_train_standardized = standardize(data=x_train_standardized)
+
     return x_train_standardized, y, calculated_cols_idxs, more_than_nan_idxs_cols
 
 

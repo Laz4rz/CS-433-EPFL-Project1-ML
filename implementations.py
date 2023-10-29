@@ -240,6 +240,8 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
         loss: corresponding loss
     """
     w = initial_w
+    y = np.where(y == -1, 0, y)
+
     loss = compute_loss_logistic(y, tx, w)
 
     for i in range(max_iters):

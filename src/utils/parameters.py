@@ -13,6 +13,11 @@ class Parameters:
     lambda_: float = 0.1
     iters: int = 10
     gamma: float = 0.01
-    threshold = 1e-8
     batch_size: int = 32
     degree: int = 1
+    balance: bool = True  # Added missing type annotation
+    balance_scale: int = 3
+    drop_calculated: bool = True  # Added missing type annotation
+    percentage: int = 90
+    fill_nans: str = "random"
+    how_init: str = "random"
