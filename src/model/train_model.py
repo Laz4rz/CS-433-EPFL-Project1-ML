@@ -10,12 +10,12 @@ import src.evaluation.evaluation as eval
 import src.model.predict_model as predict_model
 
 
-def build_k_indices(num_samples: int, k: int) -> np.ndarray:
+def build_k_indices(num_samples: int, k: int = 2) -> np.ndarray:
     """Build k indices for k-fold.
 
     Args:
         num_samples (int): number of samples.
-        k (int): number of folds.
+        k (int, optional): number of folds. Defaults to 2.
 
     Returns:
         np.ndarray: Array containing the indices of the folds.
@@ -36,7 +36,7 @@ def cross_validation(
     algorithm: callable,
     model: model.Models,
     **kwargs,
-) -> [float, float, float, np.ndarray]:
+) -> [float, float, np.ndarray]:
     """Computes the cross validation for the specified model type.
 
     Args:
@@ -46,6 +46,7 @@ def cross_validation(
         k (int): the kth folds to select.
         algorithm (callable): algorithm to be used.
         model (Models): model type.
+        kwargs: additional arguments, parameters for the algorithm.
 
     Returns:
         float: accuracy.
@@ -79,7 +80,7 @@ def run_cross_validation(
     algorithm: callable,
     model: model.Models,
     **kwargs,
-) -> [float, float, float, np.ndarray]:
+) -> [float, float, np.ndarray]:
     """Computes the cross validation for the specified model type.
 
     Args:
@@ -88,6 +89,7 @@ def run_cross_validation(
         k (int): the number of folds.
         algorithm (callable): algorithm to be used.
         model (Models): model type.
+        kwargs: additional arguments, parameters for the algorithm.
 
     Returns:
         float: accuracy.

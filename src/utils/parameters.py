@@ -5,19 +5,19 @@ parameters.py: File containing parameters dataclass.
 """
 
 from dataclasses import dataclass
-import numpy as np
+
 
 @dataclass
 class Parameters:
-    seed: int = 42
-    lambda_: float = 0.1
-    iters: int = 10
-    gamma: float = 0.01
-    batch_size: int = 32
-    degree: int = 1
-    balance: bool = True  # Added missing type annotation
-    balance_scale: int = 3
-    drop_calculated: bool = True  # Added missing type annotation
-    percentage: int = 90
-    fill_nans: str = "random"
-    how_init: str = "random"
+    seed: int = 42  # Random seed
+    lambda_: float = 0.1  # Regularization parameter
+    iters: int = 10  # Number of iterations
+    gamma: float = 0.01  # Learning rate
+    batch_size: int = 32  # Batch size
+    degree: int = 1  # Degree of the polynomial
+    balance: bool = True  # Balance the dataset
+    balance_scale: int = 3  # Scale of the balancing
+    drop_calculated: bool = True  # Drop the calculated features
+    percentage: int = 90  # Percentage of NaNs to use for dropping.
+    fill_nans: str = "random"  # How to fill the NaNs
+    how_init: str = "random"  # How to initialize the weights
