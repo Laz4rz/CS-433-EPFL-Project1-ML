@@ -137,6 +137,11 @@ def less_than_percent_nans_rows(
     return np.delete(x, idx_to_drop, 0), idx_to_drop
 
 
+def remove_outliers(x: np.ndarray, threshold: int = 9) -> np.ndarray:
+    mask = (np.abs(x) > threshold).any(1)
+    return np.delete(x, mask, 0), mask
+
+
 def get_most_freq_value(x: np.ndarray) -> np.ndarray:
     """Get the most frequent value of a 1D array.
 
@@ -201,7 +206,7 @@ def balance_data(x: np.ndarray, y: np.ndarray, scale: int = 1) -> np.ndarray:
     return x_balanced, y_balanced
 
 def build_train_features(
-    x: np.ndarray, y: np.ndarray, percentage: int = c.PERCENTAGE_NAN, fill_nans: str = None, balance: bool = False, balance_scale: int = 1, drop_calculated: bool = True, polynomial_expansion_degree: int = 1
+    x: np.ndarray, y: np.ndarray, percentage: int = c.PERCENTAGE_NAN, fill_nans: str = None, balance: bool = False, balance_scale: int = 1, drop_calculated: bool = True, polynomial_expansion_degree: int = 1, drop_outliers: int = None
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Build the train features.
 
@@ -238,6 +243,12 @@ def build_train_features(
             x_train_standardized = replace_nan_most_freq(x=x_train_standardized)
         elif fill_nans == "random":
             x_train_standardized = replace_nan_random(x=x_train_standardized)
+        assert(np.sum(np.isnan(x_train_standardized)) == 0), "There are still NaN values in the dataset."
+
+    if drop_outliers is not None:
+        x_train_standardized, outliers_mask = remove_outliers(x=x_train_standardized, threshold=drop_outliers)
+        y = np.delete(y, outliers_mask, 0)
+        assert(x_train_standardized.shape[0] == y.shape[0]), "The number of samples and labels is not the same."
         assert(np.sum(np.isnan(x_train_standardized)) == 0), "There are still NaN values in the dataset."
 
     if balance:
