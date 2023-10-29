@@ -250,13 +250,26 @@ def build_train_features(
             np.sum(np.isnan(x_train_standardized)) == 0
         ), "There are still NaN values in the dataset."
 
-    if balance:
-        x_train_standardized, y = balance_data(x=x_train_standardized, y=y, scale=balance_scale)
+    if drop_outliers is not None:
+        x_train_standardized, outliers_mask = remove_outliers(x=x_train_standardized, threshold=drop_outliers)
+        y = np.delete(y, outliers_mask, 0)
         assert(x_train_standardized.shape[0] == y.shape[0]), "The number of samples and labels is not the same."
         assert(np.sum(np.isnan(x_train_standardized)) == 0), "There are still NaN values in the dataset."
 
-    x_train_standardized = build_poly(x_train_standardized, degree=polynomial_expansion_degree)
+    if balance:
+        x_train_standardized, y = balance_data(
+            x=x_train_standardized, y=y, scale=balance_scale
+        )
+        assert (
+            x_train_standardized.shape[0] == y.shape[0]
+        ), "The number of samples and labels is not the same."
+        assert (
+            np.sum(np.isnan(x_train_standardized)) == 0
+        ), "There are still NaN values in the dataset."
 
+    x_train_standardized = build_poly(
+        x_train_standardized, degree=polynomial_expansion_degree
+    )
     x_train_standardized = standardize(data=x_train_standardized)
 
     return x_train_standardized, y, calculated_cols_idxs, more_than_nan_idxs_cols
