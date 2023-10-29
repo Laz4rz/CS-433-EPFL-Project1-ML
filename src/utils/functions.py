@@ -6,12 +6,27 @@ functions.py: File containing utility functions.
 
 import os
 import random
+import pickle
 import numpy as np
 import helpers as hp
 import src.utils.constants as c
 import src.model.Models as model
 import src.model.predict_model as predict_model
 import src.features.build_features as bf
+
+
+def get_all_results_values(results: dict, key: str) -> list:
+    return list(map(lambda x: x[key], results.values()))
+
+
+def pickle_results(results: dict, filename: str):
+    with open(filename, "wb") as f:
+        pickle.dump(results, f)
+
+
+def unpickle_results(filename: str) -> dict:
+    with open(filename, "rb") as f:
+        return pickle.load(f)
 
 
 def set_random_seed(seed: int = 42) -> None:
