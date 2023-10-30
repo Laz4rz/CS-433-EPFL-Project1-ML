@@ -50,9 +50,12 @@ def build_poly(x: np.ndarray, degree: int = 1) -> np.ndarray:
     Returns:
         poly (np.ndarray, (N,d+1)): the computed polynomial features.
     """
-    poly = np.ones((len(x), 1))
+    poly = None
     for deg in range(1, degree + 1):
-        poly = np.c_[poly, np.power(x, deg)]
+        if poly is None:
+            poly = np.power(x, deg)
+        else:
+            poly = np.c_[poly, np.power(x, deg)]
     return poly
 
 
@@ -65,10 +68,10 @@ def standardize(data: np.ndarray) -> np.ndarray:
         new_data: the standardized dataset.
     """
     new_data = data.copy()
-
     mean = np.mean(new_data, axis=0)
     std = np.std(new_data, axis=0)
     std = np.where(std == 0, 1, std)
+    
     return (new_data - mean) / std
 
 
@@ -299,6 +302,9 @@ def build_train_features(
     )
     x_train_standardized = standardize(data=x_train_standardized)
 
+    ones = np.ones((len(x_train_standardized), 1))
+    x_train_standardized = np.c_[ones, x_train_standardized]
+
     if drop_outliers is not None:
         x_train_standardized, outliers_mask = remove_outliers(
             x=x_train_standardized, threshold=drop_outliers
@@ -350,7 +356,12 @@ def build_test_features(
 
     x = build_poly(x, degree=polynomial_expansion_degree)
 
-    return standardize(data=x)
+    x = standardize(data=x)
+    
+    ones = np.ones((len(x), 1))
+    x = np.c_[ones, x]
+    
+    return x
 
 
 def build_all(

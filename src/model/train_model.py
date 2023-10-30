@@ -22,7 +22,6 @@ def build_k_indices(num_samples: int, k: int = 2) -> np.ndarray:
     """
 
     interval = int(num_samples / k)
-    np.random.seed(42)
     indices = np.random.permutation(num_samples)
     k_indices = [indices[ki * interval : (ki + 1) * interval] for ki in range(k)]
     return np.array(k_indices)
