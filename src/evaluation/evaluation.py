@@ -85,11 +85,15 @@ def full_evaluation(
     print(f"F1 score on training set: {f1_training}")
     print(f"Accuracy on training set: {acc_training}")
 
-    print("\nTest set:")
-    f1_test = compute_f1_score(y_test, compute_predictions_func(x_test, w))
-    acc_test = compute_accuracy(y_test, compute_predictions_func(x_test, w))
-    print(f"F1 score on test set: {f1_test}")
-    print(f"Accuracy on test set: {acc_test}")
+    if x_test is not None:
+        print("\nTest set:")
+        f1_test = compute_f1_score(y_test, compute_predictions_func(x_test, w))
+        acc_test = compute_accuracy(y_test, compute_predictions_func(x_test, w))
+        print(f"F1 score on test set: {f1_test}")
+        print(f"Accuracy on test set: {acc_test}")
+    else:
+        f1_test = None
+        acc_test = None
 
     print("\nFull set:")
     f1_full = compute_f1_score(y_train_full, compute_predictions_func(x_train_full, w))
