@@ -9,6 +9,12 @@ Group:
 
 > The `run.py` file contains the code for the best model we obtained.
 
+#### Requirements
+Check and install the requirements inside `requirements.txt`:
+```bash
+pip install -r requirements.txt
+```
+
 #### Implemented Algorithms:
 - `Linear regression using gradient descent`
 - `Linear regression using stochastic gradient descent`
