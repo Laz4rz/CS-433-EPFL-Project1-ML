@@ -46,7 +46,8 @@ f.set_random_seed(parameters.seed)
     x_train_full,
     initial_w,
 ) = bf.build_all(x_train=x_train, y_train=y_train, parameters=parameters)
-print(f"log reg for {parameters}")
+
+print(f"Log reg for {parameters}")
 
 acc, f1, w = train.run_cross_validation(
     x_train_balanced,

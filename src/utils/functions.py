@@ -12,31 +12,32 @@ import helpers as hp
 from typing import Tuple
 import src.utils.constants as c
 import src.model.Models as model
+import src.evaluation.evaluation as ev
 import src.model.predict_model as predict_model
 import src.features.build_features as bf
 
 from typing import Tuple
 
 
-def get_losses_at_each_iter(    
+def get_losses_at_each_iter(
     x: np.ndarray,
     y: np.ndarray,
     algorithm: callable,
     **kwargs,
 ) -> Tuple[np.ndarray, np.ndarray]:
-    
+
     iter = kwargs["max_iters"]
     kwargs["max_iters"] = 1
-    
+
     losses = []
     weights = []
-    
+
     for _ in range(iter):
         w, loss = algorithm(y=y, tx=x, **kwargs)
         losses.append(loss)
         weights.append(w)
         kwargs["initial_w"] = w
-        
+
     return np.array(losses), np.array(weights)
 
 
@@ -166,20 +167,26 @@ def create_submission(
 
 def get_losses_at_each_iter(
     x: np.ndarray,
+    x_full: np.ndarray,
     y: np.ndarray,
+    y_full: np.ndarray,
     algorithm: callable,
+    prediction_func: callable,
     **kwargs,
-) -> Tuple[np.ndarray, np.ndarray]:
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Accumulates the losses and weights at each iteration.
 
     Args:
-        x (np.ndarray): dataset.
+        x (np.ndarray): dataset (cleaned).
+        x_full (np.ndarray): dataset (full).
         y (np.ndarray): labels.
+        y_full (np.ndarray): labels (full).
         algorithm (callable): algorithm to use.
 
     Returns:
         np.ndarray: losses.
         np.ndarray: weights.
+        np.ndarray: f1 scores.
     """
 
     iter = kwargs["max_iters"]
@@ -187,6 +194,8 @@ def get_losses_at_each_iter(
 
     losses = []
     weights = []
+    f1_scores_full = []
+    f1_scores_train = []
 
     for _ in range(iter):
         w, loss = algorithm(y=y, tx=x, **kwargs)
@@ -194,4 +203,14 @@ def get_losses_at_each_iter(
         weights.append(w)
         kwargs["initial_w"] = w
 
-    return np.array(losses), np.array(weights)
+        pred_full = prediction_func(x_test=x_full, w=w)
+        f1_scores_full.append(ev.compute_f1_score(y=y_full, y_pred=pred_full))
+        pred_train = prediction_func(x_test=x, w=w)
+        f1_scores_train.append(ev.compute_f1_score(y=y, y_pred=pred_train))
+
+    return (
+        np.array(losses),
+        np.array(weights),
+        np.array(f1_scores_full),
+        np.array(f1_scores_train),
+    )
