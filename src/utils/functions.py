@@ -15,6 +15,30 @@ import src.model.Models as model
 import src.model.predict_model as predict_model
 import src.features.build_features as bf
 
+from typing import Tuple
+
+
+def get_losses_at_each_iter(    
+    x: np.ndarray,
+    y: np.ndarray,
+    algorithm: callable,
+    **kwargs,
+) -> Tuple[np.ndarray, np.ndarray]:
+    
+    iter = kwargs["max_iters"]
+    kwargs["max_iters"] = 1
+    
+    losses = []
+    weights = []
+    
+    for _ in range(iter):
+        w, loss = algorithm(y=y, tx=x, **kwargs)
+        losses.append(loss)
+        weights.append(w)
+        kwargs["initial_w"] = w
+        
+    return np.array(losses), np.array(weights)
+
 
 def get_all_results_values(results: dict, key: str) -> list:
     return list(map(lambda x: x[key], results.values()))
