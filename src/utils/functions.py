@@ -9,6 +9,7 @@ import random
 import pickle
 import numpy as np
 import helpers as hp
+from typing import Tuple
 import src.utils.constants as c
 import src.model.Models as model
 import src.model.predict_model as predict_model
@@ -137,3 +138,35 @@ def create_submission(
     hp.create_csv_submission(
         ids=ids, y_pred=pred, name=os.path.join(c.MODELS_PATH, filename)
     )
+
+def get_losses_at_each_iter(    
+    x: np.ndarray,
+    y: np.ndarray,
+    algorithm: callable,
+    **kwargs,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """Accumulates the losses and weights at each iteration.
+
+    Args:
+        x (np.ndarray): dataset.
+        y (np.ndarray): labels.
+        algorithm (callable): algorithm to use.
+
+    Returns:
+        np.ndarray: losses.
+        np.ndarray: weights.
+    """
+    
+    iter = kwargs["max_iters"]
+    kwargs["max_iters"] = 1
+    
+    losses = []
+    weights = []
+    
+    for _ in range(iter):
+        w, loss = algorithm(y=y, tx=x, **kwargs)
+        losses.append(loss)
+        weights.append(w)
+        kwargs["initial_w"] = w
+        
+    return np.array(losses), np.array(weights)
