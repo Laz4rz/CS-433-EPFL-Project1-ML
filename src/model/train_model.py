@@ -116,4 +116,6 @@ def run_cross_validation(
         f1s.append(f1)
         weights.append(w)
 
+    a = np.array(weights)
+    print(a.shape)
     return np.mean(accuracies), np.mean(f1s), np.mean(weights, axis=0)

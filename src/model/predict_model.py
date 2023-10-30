@@ -25,7 +25,7 @@ def compute_predictions_linear(x_test: np.ndarray, w: np.ndarray) -> np.ndarray:
     return y_pred
 
 
-def compute_predictions_logistic(x_test: np.ndarray, w: np.ndarray) -> np.ndarray:
+def compute_predictions_logistic(x_test: np.ndarray, w: np.ndarray, threshold: int = 0.2) -> np.ndarray:
     """Computes the predictions using the logistic regression model.
 
     Args:

@@ -56,12 +56,6 @@ def sigmoid(t):
         scalar or numpy array
     """
 
-    # def sig_elem(z):
-    #     if z <= 0:
-    #         return np.exp(z) / (np.exp(z) + 1)
-    #     else:
-    #         return 1 / (1 + np.exp(-z))
-
     return 1.0 / (1 + np.exp(-t))
 
 
@@ -83,10 +77,6 @@ def compute_loss_logistic(y, tx, w):
     y = y.reshape((-1, 1))
     loss = np.sum(np.logaddexp(0, tx.dot(w))) - y.T.dot(tx.dot(w))
     return np.squeeze(loss) * (1 / y.shape[0])
-
-    # pred = sigmoid(tx.dot(w))
-    # loss = y.T.dot(np.log(pred)) + (1 - y).T.dot(np.log(1 - pred))
-    # return np.squeeze(-loss) * (1 / y.shape[0])
 
 
 def compute_gradient_logistic(y, tx, w):
@@ -123,8 +113,9 @@ def mean_squared_error_gd(y, tx, initial_w, max_iters, gamma):
     loss = compute_loss(y, tx, w)
 
     for i in range(max_iters):
-        if i % 250 == 0:
-            print(f"Current iteration={i}, loss={loss}")
+
+        if i % 10 == 0:
+            print(f"iteration={i}, loss={loss}")
         g = compute_gradient(y, tx, w)
         # update w by gradient
         w = w - gamma * g
@@ -154,7 +145,10 @@ def mean_squared_error_sgd(y, tx, initial_w, max_iters, gamma):
     n_batches = tx.shape[0] // batch_size
     loss = compute_loss(y, tx, w)
 
-    for _ in range(max_iters):
+    for i in range(max_iters):
+
+        if i % 10 == 0:
+            print(f"iteration={i}, loss={loss}")
         grad = 0
         for batch_y, batch_tx in utils.batch_iter(y, tx, batch_size, n_batches):
             grad += compute_gradient(batch_y, batch_tx, w)
@@ -213,7 +207,6 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     Args:
         y: outpus/labels
         tx: standardized inputs/features augmented with the first column filled with 1's
-        lambda_: penalty factor
         initial_w: initial weight vector
         max_iters: number of iterations
         gamma: step size
@@ -228,11 +221,13 @@ def logistic_regression(y, tx, initial_w, max_iters, gamma):
     loss = compute_loss_logistic(y, tx, w)
 
     for i in range(max_iters):
-        if i % 250 == 0:
-            print(f"Current iteration={i}, loss={loss}")
+
+        if i % 10 == 0:
+            print(f"iteration={i}, loss={loss}")
         gradient = compute_gradient_logistic(y, tx, w)
         w = w - gamma * gradient
         loss = compute_loss_logistic(y, tx, w)
+
     return w, loss
 
 
@@ -257,9 +252,11 @@ def reg_logistic_regression(y, tx, lambda_, initial_w, max_iters, gamma):
     loss = compute_loss_logistic(y, tx, w)
 
     for i in range(max_iters):
-        if i % 250 == 0:
-            print(f"Current iteration={i}, loss={loss}")
+
+        if i % 10 == 0:
+            print(f"iteration={i}, loss={loss}")
         gradient = compute_gradient_logistic(y, tx, w) + 2 * lambda_ * w
         w = w - gamma * gradient
         loss = compute_loss_logistic(y, tx, w)
+
     return w, loss

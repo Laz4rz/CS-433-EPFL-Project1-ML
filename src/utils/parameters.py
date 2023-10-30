@@ -21,3 +21,4 @@ class Parameters:
     percentage: int = 90  # Percentage of NaNs to use for dropping.
     fill_nans: str = "random"  # How to fill the NaNs
     how_init: str = "random"  # How to initialize the weights
+    drop_outliers: bool = None  # Remove outliers

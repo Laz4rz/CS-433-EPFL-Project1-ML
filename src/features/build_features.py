@@ -7,7 +7,9 @@ build_data.py: File containing the code used for data preprocessing.
 import os as os
 import numpy as np
 import src.utils.constants as c
+import src.utils.functions as f
 
+from src.utils.parameters import Parameters
 from typing import Tuple
 
 
@@ -233,11 +235,11 @@ def build_train_features(
     x_train_standardized, more_than_nan_idxs_cols = less_than_percent_nans_columns(
         x=x_train_standardized, percentage=percentage
     )
-    x_train_standardized, more_than_nan_idxs_rows = less_than_percent_nans_rows(
-        x=x_train_standardized, percentage=50
-    )
+    # x_train_standardized, more_than_nan_idxs_rows = less_than_percent_nans_rows(
+    #     x=x_train_standardized, percentage=100
+    # )
 
-    y = np.delete(y, more_than_nan_idxs_rows, 0)
+    # y = np.delete(y, more_than_nan_idxs_rows, 0)
 
     if fill_nans is not None:
         if fill_nans == "mean":
@@ -246,15 +248,11 @@ def build_train_features(
             x_train_standardized = replace_nan_most_freq(x=x_train_standardized)
         elif fill_nans == "random":
             x_train_standardized = replace_nan_random(x=x_train_standardized)
+        elif fill_nans == "zero":
+            x_train_standardized[np.isnan(x_train_standardized)] = 0
         assert (
             np.sum(np.isnan(x_train_standardized)) == 0
         ), "There are still NaN values in the dataset."
-
-    if drop_outliers is not None:
-        x_train_standardized, outliers_mask = remove_outliers(x=x_train_standardized, threshold=drop_outliers)
-        y = np.delete(y, outliers_mask, 0)
-        assert(x_train_standardized.shape[0] == y.shape[0]), "The number of samples and labels is not the same."
-        assert(np.sum(np.isnan(x_train_standardized)) == 0), "There are still NaN values in the dataset."
 
     if balance:
         x_train_standardized, y = balance_data(
@@ -271,6 +269,13 @@ def build_train_features(
         x_train_standardized, degree=polynomial_expansion_degree
     )
     x_train_standardized = standardize(data=x_train_standardized)
+
+    if drop_outliers is not None:
+        x_train_standardized, outliers_mask = remove_outliers(x=x_train_standardized, threshold=drop_outliers)
+        y = np.delete(y, outliers_mask, 0)
+        assert(x_train_standardized.shape[0] == y.shape[0]), "The number of samples and labels is not the same."
+        assert(np.sum(np.isnan(x_train_standardized)) == 0), "There are still NaN values in the dataset."
+        print(f"Removed {len(outliers_mask)} outliers.")
 
     return x_train_standardized, y, calculated_cols_idxs, more_than_nan_idxs_cols
 
@@ -302,8 +307,64 @@ def build_test_features(
             x = replace_nan_most_freq(x=x)
         elif fill_nans == "random":
             x = replace_nan_random(x=x)
+        elif fill_nans == "zero":
+            x[np.isnan(x)] = 0
         assert np.sum(np.isnan(x)) == 0, "There are still NaN values in the dataset."
 
     x = build_poly(x, degree=polynomial_expansion_degree)
 
     return standardize(data=x)
+
+def build_all(x_train: np.ndarray, y_train: np.ndarray, parameters: Parameters) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+    """Build all the features.
+    
+    Args:
+        x_train (np.ndarray): train data.
+        y_train (np.ndarray): train labels.
+        parameters (Parameters): parameters.
+    Returns:
+        np.ndarray: the train features.
+        np.ndarray: the train labels.
+        np.ndarray: indexes of the calculated features.
+        np.ndarray: indexes of the columns with more than percentage NaN values.
+        np.ndarray: the test features.
+        np.ndarray: the initial weights.
+    """
+    print(f"Building features for {parameters}")
+    print(f"Size before build {x_train.shape}")
+    (
+        x_train_nonans_balanced,
+        y_train_balanced,
+        idx_calc_columns,
+        idx_nan_percent,
+    ) = build_train_features(
+        x=x_train,
+        y=y_train,
+        percentage=parameters.percentage,
+        fill_nans=parameters.fill_nans,
+        balance=parameters.balance,
+        balance_scale=parameters.balance_scale,
+        drop_calculated=parameters.drop_calculated,
+        polynomial_expansion_degree=parameters.degree,
+        drop_outliers=parameters.drop_outliers,
+    )
+    print(f"Size after build {x_train_nonans_balanced.shape}")
+
+    x_train_full = build_test_features(
+        x=x_train,
+        idx_calc_columns=idx_calc_columns,
+        idx_nan_percent=idx_nan_percent,
+        fill_nans=parameters.fill_nans,
+        polynomial_expansion_degree=parameters.degree,
+    )
+
+    initial_w = f.initialize_weights(x_train_nonans_balanced, how=parameters.how_init)
+
+    return (
+        x_train_nonans_balanced,
+        y_train_balanced,
+        idx_calc_columns,
+        idx_nan_percent,
+        x_train_full,
+        initial_w,
+    )

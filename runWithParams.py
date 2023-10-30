@@ -27,6 +27,7 @@ def build_all(x_train: np.ndarray, y_train: np.ndarray, parameters: Parameters):
         balance_scale=parameters.balance_scale,
         drop_calculated=parameters.drop_calculated,
         polynomial_expansion_degree=parameters.degree,
+        drop_outliers=parameters.drop_outliers,
     )
     print(f"Size after build {x_train_nonans_balanced.shape}")
 
@@ -49,12 +50,27 @@ def build_all(x_train: np.ndarray, y_train: np.ndarray, parameters: Parameters):
         initial_w,
     )
 
-parameters = {} # INSERT HERE
 
 print("Loading data...")
 x_train, x_test, y_train, train_ids, test_ids = hp.load_csv_data(c.DATA_PATH)
 y_train = np.expand_dims(y_train, 1)
 y_train = y_train.reshape((y_train.shape[0], 1))
+
+parameters = Parameters(
+    seed=42,
+    lambda_=6e-3, 
+    iters=10000, 
+    gamma=0.15, 
+    batch_size=32, 
+    degree=1, 
+    balance=False, 
+    balance_scale=1, 
+    drop_calculated=False, 
+    percentage=100, 
+    fill_nans='zero', 
+    how_init='zeros',
+    drop_outliers=None,
+)
 
 f.set_random_seed(parameters.seed)
 
@@ -62,6 +78,7 @@ x_train_balanced, y_train_balanced, _, _, x_train_full, initial_w = build_all(
     x_train=x_train, y_train=y_train, parameters=parameters
 )
 print(f"log reg for {parameters}")
+
 w, loss = impl.logistic_regression(
     y_train_balanced,
     x_train_balanced,
@@ -71,6 +88,7 @@ w, loss = impl.logistic_regression(
 )
 
 print("\nBalanced training set:")
+
 f1_training = ev.compute_f1_score(
     y_train_balanced, pred.compute_predictions_logistic(x_train_balanced, w)
 )
