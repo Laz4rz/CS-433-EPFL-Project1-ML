@@ -20,19 +20,20 @@ y_train = y_train.reshape((y_train.shape[0], 1))
 
 parameters = Parameters(
     seed=42,
-    lambda_=0.1,
-    iters=2000,
+    lambda_=6e-3,
+    iters=600,
     gamma=0.15,
     batch_size=32,
-    degree=1,
-    balance=False,
-    balance_scale=1,
-    drop_calculated=False,
-    percentage_col=100,
-    percentage_row=100,
-    fill_nans="with_num",
-    how_init="zeros",
+    degree=5,
+    balance=True,
+    balance_scale=3,
+    drop_calculated=True,
+    percentage_col=90,
+    percentage_row=50,
+    fill_nans="mean",
     num=0,
+    how_init="zeros",
+    drop_outliers=None,
 )
 
 f.set_random_seed(parameters.seed)
@@ -50,10 +51,9 @@ print(f"log reg for {parameters}")
 acc, f1, w = train.run_cross_validation(
     x_train_balanced,
     y_train_balanced,
-    2,
-    impl.reg_logistic_regression,
+    5,
+    impl.logistic_regression,
     Models.LOGISTIC,
-    lambda_=parameters.lambda_,
     initial_w=initial_w,
     max_iters=parameters.iters,
     gamma=parameters.gamma,
@@ -91,6 +91,6 @@ utilsf.create_submission(
     idx_nan_percent=idx_nan_percent,
     fill_nans=parameters.fill_nans,
     num=parameters.num,
-    filename="submission.csv",
+    filename="submission2.csv",
     degree=parameters.degree,
 )
