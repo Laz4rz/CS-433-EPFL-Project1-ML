@@ -235,7 +235,7 @@ def build_train_features(
     balance_scale: int = 1,
     drop_calculated: bool = True,
     polynomial_expansion_degree: int = 1,
-    drop_outliers: int = None
+    drop_outliers: int = None,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Build the train features.
 
@@ -264,7 +264,7 @@ def build_train_features(
     x_train_standardized, more_than_nan_idxs_cols = less_than_percent_nans_columns(
         x=x_train_standardized, percentage=percentage_col
     )
-    
+
     x_train_standardized, more_than_nan_idxs_rows = less_than_percent_nans_rows(
         x=x_train_standardized, percentage=percentage_row
     )
@@ -300,10 +300,16 @@ def build_train_features(
     x_train_standardized = standardize(data=x_train_standardized)
 
     if drop_outliers is not None:
-        x_train_standardized, outliers_mask = remove_outliers(x=x_train_standardized, threshold=drop_outliers)
+        x_train_standardized, outliers_mask = remove_outliers(
+            x=x_train_standardized, threshold=drop_outliers
+        )
         y = np.delete(y, outliers_mask, 0)
-        assert(x_train_standardized.shape[0] == y.shape[0]), "The number of samples and labels is not the same."
-        assert(np.sum(np.isnan(x_train_standardized)) == 0), "There are still NaN values in the dataset."
+        assert (
+            x_train_standardized.shape[0] == y.shape[0]
+        ), "The number of samples and labels is not the same."
+        assert (
+            np.sum(np.isnan(x_train_standardized)) == 0
+        ), "There are still NaN values in the dataset."
         print(f"Removed {len(outliers_mask)} outliers.")
 
     return x_train_standardized, y, calculated_cols_idxs, more_than_nan_idxs_cols
@@ -346,13 +352,12 @@ def build_test_features(
 
     return standardize(data=x)
 
+
 def build_all(
-    x_train: np.ndarray,
-    y_train: np.ndarray,
-    parameters: Parameters
+    x_train: np.ndarray, y_train: np.ndarray, parameters: Parameters
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Build all the features.
-    
+
     Args:
         x_train (np.ndarray): train data.
         y_train (np.ndarray): train labels.

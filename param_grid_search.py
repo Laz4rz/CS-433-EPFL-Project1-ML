@@ -12,6 +12,7 @@ import src.features.build_features as bf
 from tqdm import tqdm
 from src.utils.parameters import Parameters
 
+
 def split_train_test(x, y, ratio=0.8):
     """split the dataset based on the split ratio."""
     train_size = int(ratio * len(y))
@@ -26,9 +27,7 @@ def split_train_test(x, y, ratio=0.8):
     take_0 = int(train_size * label_0_ratio)
 
     idx_train = np.random.choice(idx_1, take_1, replace=False)
-    idx_train = np.append(
-        idx_train, np.random.choice(idx_0, take_0, replace=False)
-    )
+    idx_train = np.append(idx_train, np.random.choice(idx_0, take_0, replace=False))
 
     idx_test = np.setdiff1d(np.arange(len(y)), idx_train)
 
@@ -60,7 +59,7 @@ combinations = itertools.product(
     balance_scales,
     drop_calculateds,
     balances,
-    nums
+    nums,
 )
 
 results = {}
@@ -100,17 +99,17 @@ for combination in tqdm(list(combinations)):
     )
 
     results = ev.full_evaluation(
-        x_train=x_train_balanced, 
-        y_train=y_train_balanced, 
-        x_train_full=x_train_full, 
+        x_train=x_train_balanced,
+        y_train=y_train_balanced,
+        x_train_full=x_train_full,
         y_train_full=y_train,
-        x_test=xte, 
-        y_test=yte, 
-        w=w, 
-        results=results, 
-        parameters=parameters, 
+        x_test=xte,
+        y_test=yte,
+        w=w,
+        results=results,
+        parameters=parameters,
         compute_predictions_func=pred.compute_predictions_logistic,
-        loss=loss
+        loss=loss,
     )
 
 f.pickle_results(results, "results/results_logistic_regression_for_boxplots.pickle")

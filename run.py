@@ -37,9 +37,14 @@ parameters = Parameters(
 
 f.set_random_seed(parameters.seed)
 
-x_train_balanced, y_train_balanced, idx_calc_columns, idx_nan_percent, x_train_full, initial_w = bf.build_all(
-    x_train=x_train, y_train=y_train, parameters=parameters
-)
+(
+    x_train_balanced,
+    y_train_balanced,
+    idx_calc_columns,
+    idx_nan_percent,
+    x_train_full,
+    initial_w,
+) = bf.build_all(x_train=x_train, y_train=y_train, parameters=parameters)
 print(f"log reg for {parameters}")
 
 acc, f1, w = train.run_cross_validation(
@@ -65,7 +70,7 @@ results = ev.full_evaluation(
     results={},
     parameters=parameters,
     compute_predictions_func=pred.compute_predictions_logistic,
-    loss=None
+    loss=None,
 )
 
 bf.build_test_features(
@@ -74,7 +79,7 @@ bf.build_test_features(
     idx_nan_percent=idx_nan_percent,
     fill_nans=parameters.fill_nans,
     num=parameters.num,
-    polynomial_expansion_degree=parameters.degree
+    polynomial_expansion_degree=parameters.degree,
 )
 
 utilsf.create_submission(

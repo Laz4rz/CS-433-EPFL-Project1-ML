@@ -9,6 +9,7 @@ import numpy as np
 from typing import Callable, Dict
 from src.utils.parameters import Parameters
 
+
 def compute_rmse(loss: float) -> float:
     """Compute the rmse.
 
@@ -60,10 +61,10 @@ def full_evaluation(
     results: np.ndarray,
     parameters: Parameters,
     compute_predictions_func: Callable,
-    loss: float
+    loss: float,
 ) -> Dict:
     """Compute the full evaluation of the model.
-    
+
     Args:
         x_train (np.ndarray): training data.
         y_train (np.ndarray): training labels.
@@ -79,32 +80,20 @@ def full_evaluation(
     Returns:
         Dict: results."""
     print("\nTraining set:")
-    f1_training = compute_f1_score(
-        y_train, compute_predictions_func(x_train, w)
-    )
-    acc_training = compute_accuracy(
-        y_train, compute_predictions_func(x_train, w)
-    )
+    f1_training = compute_f1_score(y_train, compute_predictions_func(x_train, w))
+    acc_training = compute_accuracy(y_train, compute_predictions_func(x_train, w))
     print(f"F1 score on training set: {f1_training}")
     print(f"Accuracy on training set: {acc_training}")
 
     print("\nTest set:")
-    f1_test = compute_f1_score(
-        y_test, compute_predictions_func(x_test, w)
-    )
-    acc_test = compute_accuracy(
-        y_test, compute_predictions_func(x_test, w)
-    )
+    f1_test = compute_f1_score(y_test, compute_predictions_func(x_test, w))
+    acc_test = compute_accuracy(y_test, compute_predictions_func(x_test, w))
     print(f"F1 score on test set: {f1_test}")
     print(f"Accuracy on test set: {acc_test}")
 
     print("\nFull set:")
-    f1_full = compute_f1_score(
-        y_train_full, compute_predictions_func(x_train_full, w)
-    )
-    acc_full = compute_accuracy(
-        y_train_full, compute_predictions_func(x_train_full, w)
-    )
+    f1_full = compute_f1_score(y_train_full, compute_predictions_func(x_train_full, w))
+    acc_full = compute_accuracy(y_train_full, compute_predictions_func(x_train_full, w))
     print(f"F1 score on full set: {f1_full}")
     print(f"Accuracy on full set: {acc_full}")
 
