@@ -104,6 +104,7 @@ def create_submission(
     idx_calc_columns: np.ndarray = [],
     idx_nan_percent: np.ndarray = [],
     fill_nans: str = None,
+    num: int = 0,
     filename: str = "sub.csv",
     degree: int = 1,
 ) -> None:
@@ -116,6 +117,7 @@ def create_submission(
         idx_calc_columns (np.ndarray, optional): indexes of the calculated columns. Defaults to [].
         idx_nan_percent (np.ndarray, optional): indexes of the columns with more than percentage NaN values. Defaults to [].
         fill_nans (str, optional): method to fill NaN values. Defaults to None.
+        num (int, optional): value to fill NaN values (if fill_nans == with_num). Defaults to 0.
         file_name (str, optional): file name. Defaults to "sub.csv".
         degree (int, optional): degree of the polynomial expansion. Defaults to 1.
     """
@@ -124,6 +126,7 @@ def create_submission(
         idx_calc_columns=idx_calc_columns,
         idx_nan_percent=idx_nan_percent,
         fill_nans=fill_nans,
+        num=num,
         polynomial_expansion_degree=degree,
     )
     pred = predict_model.model_functions[model.name](

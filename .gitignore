@@ -11,3 +11,6 @@ models/
 
 # Data folder 
 data/
+
+# Pickle files
+/results

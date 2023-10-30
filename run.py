@@ -4,13 +4,12 @@ import implementations as impl
 import matplotlib.pyplot as plt
 import src.utils.functions as f
 import src.utils.constants as c
-import src.evaluation.evaluation as ev
-import src.model.predict_model as pred
+import src.utils.functions as utilsf
 import src.model.train_model as train
+import src.model.predict_model as pred
+import src.evaluation.evaluation as ev
 import src.features.build_features as bf
 from src.utils.parameters import Parameters
-import src.utils.functions as utilsf
-
 
 from src.model.Models import Models
 
@@ -19,7 +18,22 @@ x_train, x_test, y_train, train_ids, test_ids = hp.load_csv_data(c.DATA_PATH)
 y_train = np.expand_dims(y_train, 1)
 y_train = y_train.reshape((y_train.shape[0], 1))
 
-parameters = Parameters(seed=42, lambda_=0.1, iters=750, gamma=0.1, batch_size=32, degree=2, balance=True, balance_scale=2, drop_calculated=True, percentage=99, fill_nans='mean', how_init='zeros')
+parameters = Parameters(
+    seed=42,
+    lambda_=0.1,
+    iters=2000,
+    gamma=0.15,
+    batch_size=32,
+    degree=1,
+    balance=False,
+    balance_scale=1,
+    drop_calculated=False,
+    percentage_col=100,
+    percentage_row=100,
+    fill_nans="with_num",
+    how_init="zeros",
+    num=0,
+)
 
 f.set_random_seed(parameters.seed)
 
@@ -31,7 +45,7 @@ print(f"log reg for {parameters}")
 acc, f1, w = train.run_cross_validation(
     x_train_balanced,
     y_train_balanced,
-    10,
+    2,
     impl.reg_logistic_regression,
     Models.LOGISTIC,
     lambda_=parameters.lambda_,
@@ -59,6 +73,7 @@ bf.build_test_features(
     idx_calc_columns=idx_calc_columns,
     idx_nan_percent=idx_nan_percent,
     fill_nans=parameters.fill_nans,
+    num=parameters.num,
     polynomial_expansion_degree=parameters.degree
 )
 
@@ -70,6 +85,7 @@ utilsf.create_submission(
     idx_calc_columns=idx_calc_columns,
     idx_nan_percent=idx_nan_percent,
     fill_nans=parameters.fill_nans,
-    filename="submission1.csv",
+    num=parameters.num,
+    filename="submission.csv",
     degree=parameters.degree,
 )

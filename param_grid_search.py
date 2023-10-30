@@ -1,20 +1,15 @@
 import itertools
 import numpy as np
 import helpers as hp
-import matplotlib.pyplot as plt
 import implementations as impl
-import src.evaluation.evaluation as ev
-import src.utils.constants as c
+import matplotlib.pyplot as plt
 import src.utils.functions as f
-import src.model.predict_model as pm
+import src.model.predict_model as pred
+import src.evaluation.evaluation as ev
 import src.evaluation.evaluation as ev
 import src.features.build_features as bf
-import src.model.predict_model as pred
-import src.model.train_model as train
-import dump.maxfunc as mf
 
 from tqdm import tqdm
-from src.model.Models import Models
 from src.utils.parameters import Parameters
 
 def split_train_test(x, y, ratio=0.8):
@@ -46,15 +41,15 @@ x_train, x_test, y_train, train_ids, test_ids = hp.load_csv_data("data/")
 y_train = np.expand_dims(y_train, 1)
 y_train = y_train.reshape((y_train.shape[0], 1))
 
-
-gammas = [0.1, 0.01]
-degrees = [1, 2]
+gammas = [0.15]
+degrees = [1]
 how_inits = ["zeros"]
-fill_nans = ["mean", "random"]
-percentages = [75, 90]
-balance_scales = [1, 2]
-drop_calculateds = [True]
-balances = [True, False]
+fill_nans = ["with_num"]
+percentages = [100]
+balance_scales = [1]
+drop_calculateds = [False]
+balances = [False]
+nums = [0]
 
 combinations = itertools.product(
     gammas,
@@ -65,6 +60,7 @@ combinations = itertools.product(
     balance_scales,
     drop_calculateds,
     balances,
+    nums
 )
 
 results = {}
@@ -76,12 +72,14 @@ for combination in tqdm(list(combinations)):
         iters=200,
         gamma=combination[0],
         degree=combination[1],
-        balance=combination[7],
+        how_init=combination[2],
+        fill_nans=combination[3],
+        percentage_col=combination[4],
+        percentage_row=combination[4],
         balance_scale=combination[5],
         drop_calculated=combination[6],
-        percentage=combination[4],
-        fill_nans=combination[3],
-        how_init=combination[2],
+        balance=combination[7],
+        num=combination[8],
     )
 
     f.set_random_seed(parameters.seed)

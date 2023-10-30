@@ -21,8 +21,10 @@ def build_all(x_train: np.ndarray, y_train: np.ndarray, parameters: Parameters):
     ) = bf.build_train_features(
         x=x_train,
         y=y_train,
-        percentage=parameters.percentage,
+        percentage_col=parameters.percentage_col,
+        percentage_row=parameters.percentage_row,
         fill_nans=parameters.fill_nans,
+        num=parameters.num,
         balance=parameters.balance,
         balance_scale=parameters.balance_scale,
         drop_calculated=parameters.drop_calculated,
@@ -36,6 +38,7 @@ def build_all(x_train: np.ndarray, y_train: np.ndarray, parameters: Parameters):
         idx_calc_columns=idx_calc_columns,
         idx_nan_percent=idx_nan_percent,
         fill_nans=parameters.fill_nans,
+        num=parameters.num,
         polynomial_expansion_degree=parameters.degree,
     )
 
@@ -59,16 +62,18 @@ y_train = y_train.reshape((y_train.shape[0], 1))
 parameters = Parameters(
     seed=42,
     lambda_=6e-3, 
-    iters=10000, 
+    iters=5000, 
     gamma=0.15, 
     batch_size=32, 
     degree=1, 
     balance=False, 
     balance_scale=1, 
     drop_calculated=False, 
-    percentage=100, 
-    fill_nans='zero', 
-    how_init='zeros',
+    percentage_col=100,
+    percentage_row=100, 
+    fill_nans="with_num",
+    num=0, 
+    how_init="zeros",
     drop_outliers=None,
 )
 

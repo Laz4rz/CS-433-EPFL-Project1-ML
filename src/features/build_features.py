@@ -13,7 +13,7 @@ from src.utils.parameters import Parameters
 from typing import Tuple
 
 
-def drop_calculated_features(x: np.ndarray) -> [np.ndarray, np.ndarray]:
+def drop_calculated_features(x: np.ndarray) -> Tuple[np.ndarray, np.ndarray]:
     """Drop calculated features (and intermediately calculated features).
        These features are the ones that start or ends with an underscore.
        (Exceptions:  _DENSTR2, _GEOSTR, and _STATE).
@@ -182,6 +182,22 @@ def replace_nan_random(x: np.ndarray) -> np.ndarray:
     return x
 
 
+def nan_to_num(x: np.ndarray, num: int = 0) -> np.ndarray:
+    """Replace NaN values with num.
+
+    Args:
+        x (np.ndarray): dataset.
+        num (int): value to replace NaN values with.
+
+    Returns:
+        np.ndarray: dataset with NaN values replaced with num.
+    """
+    x = x.copy()
+    for col in range(x.shape[1]):
+        x[np.isnan(x[:, col]), col] = num
+    return x
+
+
 def balance_data(
     x: np.ndarray, y: np.ndarray, scale: int = 1
 ) -> [np.ndarray, np.ndarray]:
@@ -209,19 +225,32 @@ def balance_data(
 
 
 def build_train_features(
-    x: np.ndarray, y: np.ndarray, percentage: int = c.PERCENTAGE_NAN, fill_nans: str = None, balance: bool = False, balance_scale: int = 1, drop_calculated: bool = True, polynomial_expansion_degree: int = 1, drop_outliers: int = None
+    x: np.ndarray,
+    y: np.ndarray,
+    percentage_col: int = c.PERCENTAGE_NAN,
+    percentage_row: int = c.PERCENTAGE_NAN,
+    fill_nans: str = None,
+    num: int = 0,
+    balance: bool = False,
+    balance_scale: int = 1,
+    drop_calculated: bool = True,
+    polynomial_expansion_degree: int = 1,
+    drop_outliers: int = None
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Build the train features.
 
     Args:
         x (np.ndarray): dataset.
         y (np.ndarray): labels.
-        percentage (float, optional): Threshold of NaN values in columns to be removed. Defaults to 90.
+        percentage_col (float, optional): Threshold of NaN values in columns to be removed. Defaults to 90.
+        percentage_row (float, optional): Threshold of NaN values in rows to be removed. Defaults to 90.
         fill_nans (str, optional): Method to fill nan values. Defaults to None.
+        num (int, optional): Value to fill NaN values with (if with_num selected). Defaults to 0.
         balance (bool, optional): Whether to balance the dataset or not. Defaults to False.
         balance_scale (int, optional): Scale of the balancing. Defaults to 1.
         drop_calculated (bool, optional): Whether to drop calculated features or not. Defaults to True.
         polynomial_expansion_degree (int, optional): Degree of the polynomial expansion. Defaults to 1.
+        drop_outliers (int, optional): Threshold for outliers. Defaults to None.
     Returns:
         np.ndarray: the train features.
         np.ndarray: the train labels.
@@ -233,13 +262,13 @@ def build_train_features(
     if drop_calculated:
         x_train_standardized, calculated_cols_idxs = drop_calculated_features(x=x)
     x_train_standardized, more_than_nan_idxs_cols = less_than_percent_nans_columns(
-        x=x_train_standardized, percentage=percentage
+        x=x_train_standardized, percentage=percentage_col
     )
-    # x_train_standardized, more_than_nan_idxs_rows = less_than_percent_nans_rows(
-    #     x=x_train_standardized, percentage=100
-    # )
-
-    # y = np.delete(y, more_than_nan_idxs_rows, 0)
+    
+    x_train_standardized, more_than_nan_idxs_rows = less_than_percent_nans_rows(
+        x=x_train_standardized, percentage=percentage_row
+    )
+    y = np.delete(y, more_than_nan_idxs_rows, 0)
 
     if fill_nans is not None:
         if fill_nans == "mean":
@@ -248,8 +277,8 @@ def build_train_features(
             x_train_standardized = replace_nan_most_freq(x=x_train_standardized)
         elif fill_nans == "random":
             x_train_standardized = replace_nan_random(x=x_train_standardized)
-        elif fill_nans == "zero":
-            x_train_standardized[np.isnan(x_train_standardized)] = 0
+        elif fill_nans == "with_num":
+            x_train_standardized = np.nan_to_num(x_train_standardized, num)
         assert (
             np.sum(np.isnan(x_train_standardized)) == 0
         ), "There are still NaN values in the dataset."
@@ -285,6 +314,7 @@ def build_test_features(
     idx_calc_columns: np.ndarray = [],
     idx_nan_percent: np.ndarray = [],
     fill_nans: str = None,
+    num: int = 0,
     polynomial_expansion_degree: int = 1,
 ) -> np.ndarray:
     """Build the test features.
@@ -294,6 +324,7 @@ def build_test_features(
         idx_calc_columns (np.ndarray, optional): indexes of the calculated features.
         idx_nan_percent (np.ndarray, optional): indexes of the columns with more than percentage NaN values.
         fill_nans (str, optional): Method to fill nan values. Defaults to None.
+        num (int, optional): Value to fill NaN values with (if with_num selected). Defaults to 0.
         polynomial_expansion_degree (int, optional): Degree of the polynomial expansion. Defaults to 1.
     Returns:
         np.ndarray: the test features.
@@ -307,15 +338,19 @@ def build_test_features(
             x = replace_nan_most_freq(x=x)
         elif fill_nans == "random":
             x = replace_nan_random(x=x)
-        elif fill_nans == "zero":
-            x[np.isnan(x)] = 0
+        elif fill_nans == "with_num":
+            x = np.nan_to_num(x, num)
         assert np.sum(np.isnan(x)) == 0, "There are still NaN values in the dataset."
 
     x = build_poly(x, degree=polynomial_expansion_degree)
 
     return standardize(data=x)
 
-def build_all(x_train: np.ndarray, y_train: np.ndarray, parameters: Parameters) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
+def build_all(
+    x_train: np.ndarray,
+    y_train: np.ndarray,
+    parameters: Parameters
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray]:
     """Build all the features.
     
     Args:
@@ -340,8 +375,10 @@ def build_all(x_train: np.ndarray, y_train: np.ndarray, parameters: Parameters) 
     ) = build_train_features(
         x=x_train,
         y=y_train,
-        percentage=parameters.percentage,
+        percentage_col=parameters.percentage_col,
+        percentage_row=parameters.percentage_row,
         fill_nans=parameters.fill_nans,
+        num=parameters.num,
         balance=parameters.balance,
         balance_scale=parameters.balance_scale,
         drop_calculated=parameters.drop_calculated,
@@ -355,6 +392,7 @@ def build_all(x_train: np.ndarray, y_train: np.ndarray, parameters: Parameters) 
         idx_calc_columns=idx_calc_columns,
         idx_nan_percent=idx_nan_percent,
         fill_nans=parameters.fill_nans,
+        num=parameters.num,
         polynomial_expansion_degree=parameters.degree,
     )
 

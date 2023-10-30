@@ -21,6 +21,8 @@ All the algorithms are inside the `implementations.py` file.
 
 #### Project structure
 
+- `run.py`: file to run to obtain our best model.
+- `param_grid_search.py`: run to test more parameters on the same model.
 - `implementations.py`: implementations of all the ML algorithms.
 - `src/features`: functions for data cleaning and feature processing (NaN replacing, downsampling, columns removal, outliers removal).
 - `src/model`: functions for training and getting the predictions (k-fold cross-validation).

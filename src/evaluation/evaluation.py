@@ -49,7 +49,19 @@ def compute_f1_score(y: np.ndarray, y_pred: np.ndarray) -> float:
     return true_positives / (true_positives + (false_positives + false_negatives) / 2)
 
 
-def full_evaluation(x_train: np.ndarray, y_train: np.ndarray, x_train_full: np.ndarray, y_train_full: np.ndarray, x_test: np.ndarray, y_test: np.ndarray, w: np.ndarray, results: np.ndarray, parameters: Parameters, compute_predictions_func: Callable, loss: float) -> Dict:
+def full_evaluation(
+    x_train: np.ndarray,
+    y_train: np.ndarray,
+    x_train_full: np.ndarray,
+    y_train_full: np.ndarray,
+    x_test: np.ndarray,
+    y_test: np.ndarray,
+    w: np.ndarray,
+    results: np.ndarray,
+    parameters: Parameters,
+    compute_predictions_func: Callable,
+    loss: float
+) -> Dict:
     """Compute the full evaluation of the model.
     
     Args:
@@ -64,7 +76,6 @@ def full_evaluation(x_train: np.ndarray, y_train: np.ndarray, x_train_full: np.n
         parameters (Parameters): parameters.
         compute_predictions_func (Callable): function to compute the predictions.
         loss (float): loss.
-    
     Returns:
         Dict: results."""
     print("\nTraining set:")
