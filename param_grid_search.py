@@ -41,13 +41,14 @@ y_train = np.expand_dims(y_train, 1)
 y_train = y_train.reshape((y_train.shape[0], 1))
 
 gammas = [0.15]
-degrees = [1]
+degrees = [5]
 how_inits = ["zeros"]
-fill_nans = ["with_num"]
-percentages = [100]
-balance_scales = [1]
-drop_calculateds = [False]
-balances = [False]
+fill_nans = ["mean"]
+percentages_col = [90]
+percentages_row = [50]
+balance_scales = [3]
+drop_calculateds = [True]
+balances = [True]
 nums = [0]
 
 combinations = itertools.product(
@@ -55,11 +56,12 @@ combinations = itertools.product(
     degrees,
     how_inits,
     fill_nans,
-    percentages,
+    percentages_col,
     balance_scales,
     drop_calculateds,
     balances,
     nums,
+    percentages_row,
 )
 
 results = {}
@@ -68,17 +70,18 @@ for combination in tqdm(list(combinations)):
     parameters = Parameters(
         seed=42,
         lambda_=0.1,
-        iters=200,
+        iters=600,
         gamma=combination[0],
         degree=combination[1],
         how_init=combination[2],
         fill_nans=combination[3],
         percentage_col=combination[4],
-        percentage_row=combination[4],
+        percentage_row=combination[9],
         balance_scale=combination[5],
         drop_calculated=combination[6],
         balance=combination[7],
         num=combination[8],
+        drop_outliers=9,
     )
 
     f.set_random_seed(parameters.seed)

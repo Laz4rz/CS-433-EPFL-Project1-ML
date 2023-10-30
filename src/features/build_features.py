@@ -71,7 +71,7 @@ def standardize(data: np.ndarray) -> np.ndarray:
     mean = np.mean(new_data, axis=0)
     std = np.std(new_data, axis=0)
     std = np.where(std == 0, 1, std)
-    
+
     return (new_data - mean) / std
 
 
@@ -357,10 +357,10 @@ def build_test_features(
     x = build_poly(x, degree=polynomial_expansion_degree)
 
     x = standardize(data=x)
-    
+
     ones = np.ones((len(x), 1))
     x = np.c_[ones, x]
-    
+
     return x
 
 

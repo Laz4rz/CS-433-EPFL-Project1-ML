@@ -139,7 +139,8 @@ def create_submission(
         ids=ids, y_pred=pred, name=os.path.join(c.MODELS_PATH, filename)
     )
 
-def get_losses_at_each_iter(    
+
+def get_losses_at_each_iter(
     x: np.ndarray,
     y: np.ndarray,
     algorithm: callable,
@@ -156,17 +157,17 @@ def get_losses_at_each_iter(
         np.ndarray: losses.
         np.ndarray: weights.
     """
-    
+
     iter = kwargs["max_iters"]
     kwargs["max_iters"] = 1
-    
+
     losses = []
     weights = []
-    
+
     for _ in range(iter):
         w, loss = algorithm(y=y, tx=x, **kwargs)
         losses.append(loss)
         weights.append(w)
         kwargs["initial_w"] = w
-        
+
     return np.array(losses), np.array(weights)
